@@ -37,7 +37,7 @@ public class BlueDuckAuto extends LinearOpMode
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
         Robot robot = new Robot(hardwareMap);
 
-        drive.setPoseEstimate(new Pose2d(-42.5,64,0));
+        drive.setPoseEstimate(new Pose2d(-42.5,64,Math.toRadians(180)));
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         phoneCam = OpenCvCameraFactory.getInstance().createInternalCamera(OpenCvInternalCamera.CameraDirection.BACK, cameraMonitorViewId);
@@ -70,14 +70,14 @@ public class BlueDuckAuto extends LinearOpMode
         robot.encoderservo.setPosition(0.25);
 
         //start to carousel
-        TrajectorySequence seq1 = drive.trajectorySequenceBuilder(new Pose2d(-42.5,64,180))
+        TrajectorySequence seq1 = drive.trajectorySequenceBuilder(new Pose2d(-42.5,64,Math.toRadians(180)))
                 .lineTo(new Vector2d(-42.5, 40))
                 .waitSeconds(0.2)
                 .turn(Math.toRadians(90))
                 .waitSeconds(0.2)
-                .lineTo(new Vector2d(-61.5, 40))
+                .back(20)
                 .waitSeconds(0.2)
-                .lineTo(new Vector2d(-61.5, 54))
+                .strafeLeft(4)
                 .build();
 
         //carousel to hub
