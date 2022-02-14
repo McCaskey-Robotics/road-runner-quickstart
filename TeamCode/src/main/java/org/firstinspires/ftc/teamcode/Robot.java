@@ -37,7 +37,7 @@ public class Robot {
     public CRServo taperotateservo;
     public CRServo tapeextendservo;
 
-    public static double tapelift = 0.55;
+    public static double tapelift = 0.34;
     public double liftPosition = 0.4;
 
     public double sharedExtend = 700;

@@ -149,19 +149,15 @@ public class DriverControled extends LinearOpMode {
             }
 
             if(driver2Mode == Robot.driver2.tape) {
-                Robot.tapelift += -gamepad2.left_stick_y * 0.01;
+                Robot.tapelift -= -gamepad2.left_stick_y * 0.01;
 
-                Robot.tapelift = Math.max(0.43, Robot.tapelift);
-                Robot.tapelift = Math.min(0.66, Robot.tapelift);
+                Robot.tapelift = Math.max(0, Robot.tapelift);
+                Robot.tapelift = Math.min(1, Robot.tapelift);
 
                 robot.tapeextendservo.setPower(gamepad2.right_stick_y);
                 robot.tapeliftservo.setPosition(Robot.tapelift);
 
-                if (gamepad2.right_stick_x > 0) {
-                    robot.taperotateservo.setPower(gamepad2.right_stick_x / 10);
-                } else {
-                    robot.taperotateservo.setPower(gamepad2.right_stick_x / 20);
-                }
+                robot.taperotateservo.setPower(-gamepad2.right_stick_x);
             }
             else {
                 robot.sharedExtend = (-gamepad2.left_stick_y * 400) + 600;
