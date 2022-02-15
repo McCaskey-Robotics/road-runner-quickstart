@@ -39,6 +39,7 @@ public class Robot {
 
     public static double tapelift = 0.34;
     public double liftPosition = 0.4;
+    public double tapeRotateSpeed = 0;
 
     public double sharedExtend = 700;
 

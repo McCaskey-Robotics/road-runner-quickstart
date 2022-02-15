@@ -144,7 +144,7 @@ public class DriverControled extends LinearOpMode {
             if(gamepad2.a){
                 driver2Mode = Robot.driver2.other;
             }
-            else if(gamepad2.b){
+            else if(gamepad2.b || Math.abs(gamepad2.right_stick_y) > 0.1 ||  Math.abs(gamepad2.right_stick_x) > 0.1){
                 driver2Mode = Robot.driver2.tape;
             }
 
@@ -157,7 +157,11 @@ public class DriverControled extends LinearOpMode {
                 robot.tapeextendservo.setPower(gamepad2.right_stick_y);
                 robot.tapeliftservo.setPosition(Robot.tapelift);
 
-                robot.taperotateservo.setPower(-gamepad2.right_stick_x);
+                //accelerate and decelerate to make it not as jerky
+                if(robot.tapeRotateSpeed > gamepad2.right_stick_x) robot.tapeRotateSpeed -= 0.05;
+                if(robot.tapeRotateSpeed < gamepad2.right_stick_x) robot.tapeRotateSpeed += 0.05;
+                robot.taperotateservo.setPower(-robot.tapeRotateSpeed);
+
             }
             else {
                 robot.sharedExtend = (-gamepad2.left_stick_y * 400) + 600;
