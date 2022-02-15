@@ -51,6 +51,8 @@ public class Robot {
     public static double bucketOffset1 = 0.1;
     public static double bucketOffset2 = 0.025;
 
+    public static int extendOffset = -200;
+
     int level = 3;
 
     //if we should wait after we have extended
@@ -299,17 +301,17 @@ public class Robot {
 
                 else if (level == 1)
                 {
-                    extend.setTargetPosition(2200);
+                    extend.setTargetPosition(2200 + extendOffset);
                     setLiftPosition(0.22);
                 }
                 else if (level == 2)
                 {
-                    extend.setTargetPosition(2100);
+                    extend.setTargetPosition(2100 + extendOffset);
                     setLiftPosition(0.47);
                 }
                 else
                 {
-                    extend.setTargetPosition(2800);
+                    extend.setTargetPosition(2800 + extendOffset);
                     setLiftPosition(0.73);
                 }
 

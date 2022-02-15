@@ -129,9 +129,9 @@ public class BlueDuckAuto extends LinearOpMode
             drive.update();
 
             drive.setDrivePower(new Pose2d(0,-0.75,0));
-            sleep(1150);
+            sleep(1500);
             drive.setDrivePower(new Pose2d(-0.2, 0, 0));
-            sleep(550);
+            sleep(1000);
             drive.setDrivePower(new Pose2d(0,0,0));
 
             robot.setCarSpeed(0.5);
