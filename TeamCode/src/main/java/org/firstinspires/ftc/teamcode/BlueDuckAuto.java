@@ -75,9 +75,6 @@ public class BlueDuckAuto extends LinearOpMode
                 .waitSeconds(0.2)
                 .turn(Math.toRadians(90))
                 .waitSeconds(0.2)
-                .back(20)
-                .waitSeconds(0.2)
-                .strafeLeft(4)
                 .build();
 
         //carousel to hub
@@ -95,7 +92,7 @@ public class BlueDuckAuto extends LinearOpMode
         TrajectorySequence seq3 = drive.trajectorySequenceBuilder(seq2.end())
                 .lineTo(new Vector2d(-76, 33))
                 .waitSeconds(0.2)
-                .lineTo(new Vector2d(-76, 48))
+                .lineTo(new Vector2d(-76, 50))
                 .build();
 
 
@@ -129,10 +126,16 @@ public class BlueDuckAuto extends LinearOpMode
 
             //drive to carousel
             drive.followTrajectorySequence(seq1);
-
             drive.update();
-            robot.setCarSpeed(1);
-            sleep(2000);
+
+            drive.setDrivePower(new Pose2d(0,-0.75,0));
+            sleep(1150);
+            drive.setDrivePower(new Pose2d(-0.2, 0, 0));
+            sleep(550);
+            drive.setDrivePower(new Pose2d(0,0,0));
+
+            robot.setCarSpeed(0.5);
+            sleep(3000);
             robot.setCarSpeed(0);
 
             //Turn so back is pressed against wall + drive to hub
