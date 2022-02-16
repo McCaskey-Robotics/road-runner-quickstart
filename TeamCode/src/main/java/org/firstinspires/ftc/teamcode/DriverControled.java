@@ -158,8 +158,8 @@ public class DriverControled extends LinearOpMode {
                 robot.tapeliftservo.setPosition(Robot.tapelift);
 
                 //accelerate and decelerate to make it not as jerky
-                if(robot.tapeRotateSpeed > gamepad2.right_stick_x) robot.tapeRotateSpeed -= 0.05;
-                if(robot.tapeRotateSpeed < gamepad2.right_stick_x) robot.tapeRotateSpeed += 0.05;
+                if(robot.tapeRotateSpeed > gamepad2.right_stick_x) robot.tapeRotateSpeed -= 0.1;
+                if(robot.tapeRotateSpeed < gamepad2.right_stick_x) robot.tapeRotateSpeed += 0.1;
                 robot.taperotateservo.setPower(-robot.tapeRotateSpeed);
 
             }

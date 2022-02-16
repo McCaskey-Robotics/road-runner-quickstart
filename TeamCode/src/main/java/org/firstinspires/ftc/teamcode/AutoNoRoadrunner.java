@@ -42,6 +42,9 @@ public class AutoNoRoadrunner extends LinearOpMode {
         //red / blue side
         int side = 1;
 
+        //if we should do 2nd pre load
+        boolean preload2 = false;
+
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         phoneCam = OpenCvCameraFactory.getInstance().createInternalCamera(OpenCvInternalCamera.CameraDirection.BACK, cameraMonitorViewId);
         pipeline = new SkystoneDeterminationExample.SkystoneDeterminationPipeline();
@@ -80,6 +83,9 @@ public class AutoNoRoadrunner extends LinearOpMode {
             if(gamepad1.x) side = -1;
             if(gamepad1.b) side = 1;
 
+            if(gamepad1.dpad_up) preload2 = true;
+            if(gamepad1.dpad_down) preload2 = false;
+
             telemetry.addData("Analysis", pipeline.getAnalysis());
             if(side == 1) {
                 telemetry.addLine(String.format("<big><font color=#%02x%02x%02x>red</font><big>", 255, 0, 0));
@@ -90,6 +96,12 @@ public class AutoNoRoadrunner extends LinearOpMode {
                         //.addData("side", " blue");
             }
 
+            if(preload2) {
+                telemetry.addLine(String.format("<big><font color=#%02x%02x%02x>2nd preload</font><big>", 0, 255, 0));
+            }
+            else {
+                telemetry.addLine(String.format("<big><font color=#%02x%02x%02x>no 2nd preload</font><big>", 255, 0, 0));
+            }
 
             telemetry.update();
 
@@ -119,7 +131,13 @@ public class AutoNoRoadrunner extends LinearOpMode {
             robot.extendState = Robot.ExtendState.EXTEND;
 
             //intake down
-            robot.setIntakeBucketState(side == 1 ? Robot.IntakeBucket.RIGHT /*red*/ : Robot.IntakeBucket.LEFT /*blue*/);
+            if(preload2){
+                //reverse for 2nd preload
+                robot.setIntakeBucketState(side == 1 ? Robot.IntakeBucket.LEFT /*red*/ : Robot.IntakeBucket.RIGHT /*blue*/);
+            }
+            else {
+                robot.setIntakeBucketState(side == 1 ? Robot.IntakeBucket.RIGHT /*red*/ : Robot.IntakeBucket.LEFT /*blue*/);
+            }
 
             //drive to hub
             drive.setDrivePower(new Pose2d(-0.5 * side,0,0));
@@ -134,7 +152,40 @@ public class AutoNoRoadrunner extends LinearOpMode {
             }
             drive.setDrivePower(new Pose2d(0,0,0));
 
+            robot.setIntakeSpeed(1,side * -1);
+            if(preload2){
+                //2nd preload
+                drive.setDrivePower(new Pose2d(-0.3 * side,0,0));
+                while (robot.getColor(side * -1) > 2 && opModeIsActive() && System.currentTimeMillis() - autoTime < 6000) {
+                    drive.updatePoseEstimate();
+                    robot.updateExtend();
+                    robot.updateLiftServo();
+                    robot.updateIntakeBucket();
+                }
+                drive.setDrivePower(new Pose2d(0,0,0));
+
+                robot.setIntakeBucketState(Robot.IntakeBucket.UP);
+                sleep(500);
+
+                robot.extendState = Robot.ExtendState.EXTEND;
+
+                //drive to hub
+                drive.setDrivePower(new Pose2d(0.5 * side,0,0));
+                while (opModeIsActive() && robot.extendState != Robot.ExtendState.RESET) {
+                    drive.updatePoseEstimate();
+                    robot.updateExtend();
+                    robot.updateLiftServo();
+                    robot.updateIntakeBucket();
+                    if(drive.getPoseEstimate().getX() > -15){
+                        drive.setDrivePower(new Pose2d(0,0,0));
+                    }
+                }
+                drive.setDrivePower(new Pose2d(0,0,0));
+            }
+
             while(opModeIsActive()) {
+
+                robot.setIntakeBucketState(side == 1 ? Robot.IntakeBucket.RIGHT /*red*/ : Robot.IntakeBucket.LEFT /*blue*/);
 
                 robot.setIntakeSpeed(1,side);
 
@@ -145,7 +196,6 @@ public class AutoNoRoadrunner extends LinearOpMode {
                     robot.updateExtend();
                     robot.updateLiftServo();
                     robot.updateIntakeBucket();
-                    robot.setIntake1Speed(1);
                     if(drive.getPoseEstimate().getX() > 0){
                         drive.setDrivePower(new Pose2d(0.3 * side,0,0));
                     }
