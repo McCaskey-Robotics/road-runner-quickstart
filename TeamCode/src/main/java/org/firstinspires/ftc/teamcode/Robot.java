@@ -214,14 +214,14 @@ public class Robot {
                 intake.setPosition(0.5);
             }
             else if(intakeBucketlastState == IntakeBucket.LEFT) {
-                intake.setPosition(0.4);
+                intake.setPosition(0.3);
             }
         }
         else if(intakeBucketState == IntakeBucket.RIGHT){
-            intake.setPosition(0.13);
+            intake.setPosition(0.12);
         }
         else if(intakeBucketState == IntakeBucket.LEFT) {
-            intake.setPosition(0.77);
+            intake.setPosition(0.72);
         }
     }
 

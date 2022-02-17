@@ -86,7 +86,7 @@ public class AutoNoRoadrunner extends LinearOpMode {
             if(gamepad1.dpad_up) preload2 = true;
             if(gamepad1.dpad_down) preload2 = false;
 
-            telemetry.addData("Analysis", pipeline.getAnalysis());
+            telemetry.addLine("Analysis" + pipeline.getAnalysis());
             if(side == 1) {
                 telemetry.addLine(String.format("<big><font color=#%02x%02x%02x>red</font><big>", 255, 0, 0));
                         //.addData("side", " red");
@@ -156,7 +156,7 @@ public class AutoNoRoadrunner extends LinearOpMode {
             if(preload2){
                 //2nd preload
                 drive.setDrivePower(new Pose2d(-0.3 * side,0,0));
-                while (robot.getColor(side * -1) > 2 && opModeIsActive() && System.currentTimeMillis() - autoTime < 6000) {
+                while (robot.getColor(side * -1) > 2 && opModeIsActive() && System.currentTimeMillis() - autoTime < 4000) {
                     drive.updatePoseEstimate();
                     robot.updateExtend();
                     robot.updateLiftServo();
@@ -165,7 +165,13 @@ public class AutoNoRoadrunner extends LinearOpMode {
                 drive.setDrivePower(new Pose2d(0,0,0));
 
                 robot.setIntakeBucketState(Robot.IntakeBucket.UP);
-                sleep(500);
+                robot.intakebucketClock = System.currentTimeMillis();
+
+                while(System.currentTimeMillis() - robot.intakebucketClock < 1500) {
+                    //for(int i = 0;i < 2000; i ++) {
+                    robot.updateIntakeBucket();
+                    //}
+                }
 
                 robot.extendState = Robot.ExtendState.EXTEND;
 
@@ -176,7 +182,7 @@ public class AutoNoRoadrunner extends LinearOpMode {
                     robot.updateExtend();
                     robot.updateLiftServo();
                     robot.updateIntakeBucket();
-                    if(drive.getPoseEstimate().getX() > -15){
+                    if(drive.getPoseEstimate().getX() > -23){
                         drive.setDrivePower(new Pose2d(0,0,0));
                     }
                 }
