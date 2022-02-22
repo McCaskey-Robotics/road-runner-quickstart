@@ -73,26 +73,29 @@ public class RedDuckAuto extends LinearOpMode
         TrajectorySequence seq1 = drive.trajectorySequenceBuilder(new Pose2d(-42.5,-64,0))
                 .lineTo(new Vector2d(-42.5, -48))
                 .waitSeconds(0.2)
-                .lineTo(new Vector2d(-61.5, -48))
+                .lineTo(new Vector2d(-61, -48))
                 .waitSeconds(0.2)
-                .lineTo(new Vector2d(-61.5, -54))
+                .lineTo(new Vector2d(-61.5, -60))
                 .build();
 
         //carousel to hub
         TrajectorySequence seq2 = drive.trajectorySequenceBuilder(seq1.end())
-                .lineTo(new Vector2d(-55, -48))
+                .lineTo(new Vector2d(-55, -42))
                 .waitSeconds(0.2)
                 .turn(Math.toRadians(-90))
+                .waitSeconds(0.5)
+                .build();
+
+        TrajectorySequence seq3 = drive.trajectorySequenceBuilder(new Pose2d(-76, -42, Math.toRadians(-90)))
+                .lineTo(new Vector2d(-76, -44))
                 .waitSeconds(0.2)
-                .lineTo(new Vector2d(-74, -48))
+                .lineTo(new Vector2d(-76, -36))
                 .waitSeconds(0.2)
-                .lineTo(new Vector2d(-74, -36))
-                .waitSeconds(0.2)
-                .lineTo(new Vector2d(-54, -36))
+                .lineTo(new Vector2d(-56, -36))
                 .build();
 
         //hub to parking
-        TrajectorySequence seq3 = drive.trajectorySequenceBuilder(seq2.end())
+        TrajectorySequence seq4 = drive.trajectorySequenceBuilder(seq3.end())
                 .lineTo(new Vector2d(-76, -33))
                 .waitSeconds(0.2)
                 .lineTo(new Vector2d(-76, -48))
@@ -137,6 +140,11 @@ public class RedDuckAuto extends LinearOpMode
 
             //Turn so back is pressed against wall + drive to hub
             drive.followTrajectorySequence(seq2);
+
+            drive.setDrivePower(new Pose2d(0,-0.75,0));
+            sleep(1150);
+
+            drive.followTrajectorySequence(seq3);
 
             //extend arm + deliver freight
             while (opModeIsActive() && robot.extendState != Robot.ExtendState.RESET)

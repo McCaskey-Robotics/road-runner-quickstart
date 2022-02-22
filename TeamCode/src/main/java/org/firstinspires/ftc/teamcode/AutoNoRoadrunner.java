@@ -230,7 +230,7 @@ public class AutoNoRoadrunner extends LinearOpMode {
 
                 //drive to hub
                 drive.setDrivePower(new Pose2d(-0.75 * side,0,0));
-                while (drive.getPoseEstimate().getX() > -9 && opModeIsActive()) {
+                while (drive.getPoseEstimate().getX() > -10 && opModeIsActive()) {
                     drive.updatePoseEstimate();
                     robot.updateExtend();
                     robot.updateLiftServo();
