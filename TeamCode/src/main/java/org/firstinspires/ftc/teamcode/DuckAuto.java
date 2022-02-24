@@ -6,6 +6,7 @@ import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.openCV.SkystoneDeterminationExample;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
@@ -34,20 +35,10 @@ public class DuckAuto extends LinearOpMode
     {
         double retractTimer;
 
-        bool red = true;
+        boolean red = true;
 
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
         Robot robot = new Robot(hardwareMap);
-
-        if (red)
-        {
-            drive.setPoseEstimate(new Pose2d(-42.5, -64, 0));
-        }
-        else
-        {
-            drive.setPoseEstimate(new Pose2d(-42.5, 64, Math.toRadians(180)));
-        }
-        
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         phoneCam = OpenCvCameraFactory.getInstance().createInternalCamera(OpenCvInternalCamera.CameraDirection.BACK, cameraMonitorViewId);
@@ -77,19 +68,85 @@ public class DuckAuto extends LinearOpMode
             }
         });
 
+        //Red trajectories
+        //start to carousel
+        TrajectorySequence seqR1 = drive.trajectorySequenceBuilder(new Pose2d(-42.5, -64, 0))
+                .lineTo(new Vector2d(-42.5, -48))
+                .waitSeconds(0.2)
+                .lineTo(new Vector2d(-61, -48))
+                .waitSeconds(0.2)
+                .lineTo(new Vector2d(-61.5, -60))
+                .build();
+
+        //carousel to hub
+        TrajectorySequence seqR2 = drive.trajectorySequenceBuilder(seqR1.end())
+                .lineTo(new Vector2d(-55, -42))
+                .waitSeconds(0.2)
+                .turn(Math.toRadians(-90))
+                .waitSeconds(0.5)
+                .build();
+
+        TrajectorySequence seqR3 = drive.trajectorySequenceBuilder(new Pose2d(-76, -42, Math.toRadians(-90)))
+                .lineTo(new Vector2d(-76, -44))
+                .waitSeconds(0.2)
+                .lineTo(new Vector2d(-76, -36))
+                .waitSeconds(0.2)
+                .lineTo(new Vector2d(-56, -36))
+                .build();
+
+        //hub to parking
+        TrajectorySequence seqR4 = drive.trajectorySequenceBuilder(seqR3.end())
+                .lineTo(new Vector2d(-76, -33))
+                .waitSeconds(0.2)
+                .lineTo(new Vector2d(-76, -48))
+                .build();
+
+        //Blue Trajectories
+        //start to carousel
+        TrajectorySequence seqB1 = drive.trajectorySequenceBuilder(new Pose2d(-42.5,64,Math.toRadians(180)))
+                .lineTo(new Vector2d(-42.5, 40))
+                .waitSeconds(0.2)
+                .turn(Math.toRadians(90))
+                .waitSeconds(0.2)
+                .build();
+
+        //carousel to hub
+        TrajectorySequence seqB2 = drive.trajectorySequenceBuilder(seqB1.end())
+                .lineTo(new Vector2d(-55, 48))
+                .waitSeconds(0.2)
+                .lineTo(new Vector2d(-74, 48))
+                .waitSeconds(0.2)
+                .lineTo(new Vector2d(-74, 36))
+                .waitSeconds(0.2)
+                .lineTo(new Vector2d(-54, 36))
+                .build();
+
+        //hub to parking
+        TrajectorySequence seqB3 = drive.trajectorySequenceBuilder(seqB2.end())
+                .lineTo(new Vector2d(-76, 33))
+                .waitSeconds(0.2)
+                .lineTo(new Vector2d(-76, 50))
+                .build();
+
+
         robot.encoderservo.setPosition(0.25);
 
         int level = pipeline.getAnalysis().ordinal() + 1;
 
         while (!isStarted())
         {
+            //choose side
             if (gamepad1.b)
             {
                 red = true;
+                drive.setPoseEstimate(new Pose2d(-42.5, -64, 0));
+                telemetry.addLine(String.format("<big><font color=#%02x%02x%02x>Red</font><big>", 255, 0, 0));
             }
             if (gamepad1.x)
             {
                 red = false;
+                drive.setPoseEstimate(new Pose2d(-42.5, 64, Math.toRadians(180)));
+                telemetry.addLine(String.format("<big><font color=#%02x%02x%02x>blue</font><big>", 0, 0, 255));
             }
 
             telemetry.addData("Analysis", pipeline.getAnalysis());
@@ -98,71 +155,7 @@ public class DuckAuto extends LinearOpMode
             // Don't burn CPU cycles busy-looping in this sample
             sleep(50);
             level = pipeline.getAnalysis().ordinal() + 1;
-            
-            //build trajectories based on side
-            if (red)
-            {
-                //start to carousel
-                TrajectorySequence seq1 = drive.trajectorySequenceBuilder(new Pose2d(-42.5, -64, 0))
-                        .lineTo(new Vector2d(-42.5, -48))
-                        .waitSeconds(0.2)
-                        .lineTo(new Vector2d(-61, -48))
-                        .waitSeconds(0.2)
-                        .lineTo(new Vector2d(-61.5, -60))
-                        .build();
 
-                //carousel to hub
-                TrajectorySequence seq2 = drive.trajectorySequenceBuilder(seq1.end())
-                        .lineTo(new Vector2d(-55, -42))
-                        .waitSeconds(0.2)
-                        .turn(Math.toRadians(-90))
-                        .waitSeconds(0.5)
-                        .build();
-
-                TrajectorySequence seq3 = drive.trajectorySequenceBuilder(new Pose2d(-76, -42, Math.toRadians(-90)))
-                        .lineTo(new Vector2d(-76, -44))
-                        .waitSeconds(0.2)
-                        .lineTo(new Vector2d(-76, -36))
-                        .waitSeconds(0.2)
-                        .lineTo(new Vector2d(-56, -36))
-                        .build();
-
-                //hub to parking
-                TrajectorySequence seq4 = drive.trajectorySequenceBuilder(seq3.end())
-                        .lineTo(new Vector2d(-76, -33))
-                        .waitSeconds(0.2)
-                        .lineTo(new Vector2d(-76, -48))
-                        .build();
-            }
-            else
-            {
-                //start to carousel
-                TrajectorySequence seq1 = drive.trajectorySequenceBuilder(new Pose2d(-42.5,64,Math.toRadians(180)))
-                        .lineTo(new Vector2d(-42.5, 40))
-                        .waitSeconds(0.2)
-                        .turn(Math.toRadians(90))
-                        .waitSeconds(0.2)
-                        .build();
-
-                //carousel to hub
-                TrajectorySequence seq2 = drive.trajectorySequenceBuilder(seq1.end())
-                        .lineTo(new Vector2d(-55, 48))
-                        .waitSeconds(0.2)
-                        .lineTo(new Vector2d(-74, 48))
-                        .waitSeconds(0.2)
-                        .lineTo(new Vector2d(-74, 36))
-                        .waitSeconds(0.2)
-                        .lineTo(new Vector2d(-54, 36))
-                        .build();
-
-                //hub to parking
-                TrajectorySequence seq3 = drive.trajectorySequenceBuilder(seq2.end())
-                        .lineTo(new Vector2d(-76, 33))
-                        .waitSeconds(0.2)
-                        .lineTo(new Vector2d(-76, 50))
-                        .build();
-            }
-            
 
         }
 
@@ -181,11 +174,9 @@ public class DuckAuto extends LinearOpMode
             robot.setIntakeBucketState(Robot.IntakeBucket.RIGHT);
 
             //drive to carousel
-            drive.followTrajectorySequence(seq1);
-            drive.update()
-
             if (red)
             {
+                drive.followTrajectorySequence(seqR1);
                 drive.update();
                 robot.setCarSpeed(-1);
                 sleep(2000);
@@ -193,6 +184,8 @@ public class DuckAuto extends LinearOpMode
             }
             else
             {
+                drive.followTrajectorySequence(seqB1);
+                drive.update();
                 drive.setDrivePower(new Pose2d(0,-0.75,0));
                 sleep(1500);
                 drive.setDrivePower(new Pose2d(-0.2, 0, 0));
@@ -205,14 +198,16 @@ public class DuckAuto extends LinearOpMode
             }
 
             //Turn so back is pressed against wall + drive to hub
-            drive.followTrajectorySequence(seq2);
+
 
             if (red)
             {
+                drive.followTrajectorySequence(seqR2);
+                drive.update();
                 drive.setDrivePower(new Pose2d(0,-0.75,0));
                 sleep(1150);
 
-                drive.followTrajectorySequence(seq3);
+                drive.followTrajectorySequence(seqR3);
             }
 
             //extend arm + deliver freight
@@ -227,11 +222,11 @@ public class DuckAuto extends LinearOpMode
             //park + retract ar
             if (red)
             {
-                drive.followTrajectorySequenceAsync(seq4);
+                drive.followTrajectorySequenceAsync(seqR4);
             }
             else 
             {
-                drive.followTrajectorySequenceAsync(seq3);
+                drive.followTrajectorySequenceAsync(seqB3);
             }
             
 
