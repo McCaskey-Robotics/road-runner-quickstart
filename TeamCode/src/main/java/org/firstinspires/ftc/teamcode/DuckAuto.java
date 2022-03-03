@@ -87,8 +87,6 @@ public class DuckAuto extends LinearOpMode
                 .build();
 
         TrajectorySequence seqR3 = drive.trajectorySequenceBuilder(new Pose2d(-76, -42, Math.toRadians(-90)))
-                .lineTo(new Vector2d(-76, -44))
-                .waitSeconds(0.2)
                 .lineTo(new Vector2d(-76, -36))
                 .waitSeconds(0.2)
                 .lineTo(new Vector2d(-56, -36))
@@ -100,6 +98,9 @@ public class DuckAuto extends LinearOpMode
                 .waitSeconds(0.2)
                 .lineTo(new Vector2d(-76, -48))
                 .build();
+
+
+
 
         //Blue Trajectories
         //start to carousel
@@ -133,6 +134,8 @@ public class DuckAuto extends LinearOpMode
 
         int level = pipeline.getAnalysis().ordinal() + 1;
 
+        telemetry.setDisplayFormat(Telemetry.DisplayFormat.HTML);
+
         while (!isStarted())
         {
             //choose side
@@ -140,13 +143,20 @@ public class DuckAuto extends LinearOpMode
             {
                 red = true;
                 drive.setPoseEstimate(new Pose2d(-42.5, -64, 0));
-                telemetry.addLine(String.format("<big><font color=#%02x%02x%02x>Red</font><big>", 255, 0, 0));
             }
             if (gamepad1.x)
             {
                 red = false;
                 drive.setPoseEstimate(new Pose2d(-42.5, 64, Math.toRadians(180)));
-                telemetry.addLine(String.format("<big><font color=#%02x%02x%02x>blue</font><big>", 0, 0, 255));
+            }
+
+            if (red)
+            {
+                telemetry.addLine(String.format("<big><font color=#%02x%02x%02x>Red</font><big>", 255, 0, 0));
+            }
+            else
+            {
+                telemetry.addLine(String.format("<big><font color=#%02x%02x%02x>Blue</font><big>", 0, 0, 255));
             }
 
             telemetry.addData("Analysis", pipeline.getAnalysis());
@@ -178,8 +188,8 @@ public class DuckAuto extends LinearOpMode
             {
                 drive.followTrajectorySequence(seqR1);
                 drive.update();
-                robot.setCarSpeed(-1);
-                sleep(2000);
+                robot.setCarSpeed(-0.5);
+                sleep(3000);
                 robot.setCarSpeed(0);
             }
             else
@@ -208,6 +218,7 @@ public class DuckAuto extends LinearOpMode
                 sleep(1150);
 
                 drive.followTrajectorySequence(seqR3);
+                drive.update();
             }
 
             //extend arm + deliver freight

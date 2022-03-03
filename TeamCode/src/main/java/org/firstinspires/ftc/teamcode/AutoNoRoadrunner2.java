@@ -111,7 +111,7 @@ public class AutoNoRoadrunner2 extends LinearOpMode {
 
             while(opModeIsActive()) {
 
-                robot.setIntake1Speed(1);
+                //robot.setIntake1Speed(1);
 
                 //drive into warehouse
                 pathFollower.FollowPath(new ZachPathGenerator(38));
@@ -121,7 +121,7 @@ public class AutoNoRoadrunner2 extends LinearOpMode {
                     robot.updateExtend();
                     robot.updateLiftServo();
                     robot.updateIntakeBucket();
-                    robot.setIntake1Speed(1);
+                    //robot.setIntake1Speed(1);
                     if(robot.getColor(1) > 1){
                         pathFollower.cancleFollowing();
                     }
@@ -134,15 +134,15 @@ public class AutoNoRoadrunner2 extends LinearOpMode {
                     robot.updateExtend();
                     robot.updateLiftServo();
                     robot.updateIntakeBucket();
-                    robot.setIntake1Speed(1);
+                    //robot.setIntake1Speed(1);
                 }
 
                 drive.setDrivePower(new Pose2d(0,0,0));
 
                 //turn off intake and raise intake bucket
-                robot.setIntake1Speed(-1);
+                //robot.setIntake1Speed(-1);
                 sleep(100);
-                robot.setIntake1Speed(0);
+                //robot.setIntake1Speed(0);
                 robot.setIntakeBucketState(Robot.IntakeBucket.UP);
 
                 //drive to hub
@@ -153,7 +153,7 @@ public class AutoNoRoadrunner2 extends LinearOpMode {
                     robot.updateExtend();
                     robot.updateLiftServo();
                     robot.updateIntakeBucket();
-                    robot.setIntake1Speed(0);
+                    //robot.setIntake1Speed(0);
                 }
 
                 //set target to high goal and extend
@@ -167,7 +167,7 @@ public class AutoNoRoadrunner2 extends LinearOpMode {
                 while (robot.extendState != Robot.ExtendState.RESET && opModeIsActive()) {
                     robot.updateExtend();
                     robot.updateLiftServo();
-                    robot.setIntake1Speed(0);
+                    //robot.setIntake1Speed(0);
                 }
 
                 if(System.currentTimeMillis() - autoTime < 9000){

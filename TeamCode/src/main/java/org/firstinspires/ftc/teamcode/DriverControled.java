@@ -93,7 +93,7 @@ public class DriverControled extends LinearOpMode {
 
 
             /* INTAKE BUCKET */
-            if(gamepad2.dpad_up){
+            /*if(gamepad2.dpad_up){
                 robot.setIntakeBucketState(Robot.IntakeBucket.UP);
             }
             else if(gamepad2.dpad_right){
@@ -111,27 +111,36 @@ public class DriverControled extends LinearOpMode {
             dpadDownLast = d;
 
             robot.updateIntakeBucket();
+             */
+            if(gamepad2.dpad_left){
+                robot.intakePivot.setPower(-0.1);
+            }
+            else if(gamepad2.dpad_right){
+                robot.intakePivot.setPower(0.1);
+            }
+            else{
+                robot.intakePivot.setPower(0);
+            }
 
             /* INTAKE */
             if(robot.intakeState == Robot.IntakeState.MANUAL){
-                if(robot.intakeBucketState == Robot.IntakeBucket.RIGHT) {
+                if(true) {
                     if (gamepad2.right_bumper) {
-                        robot.setIntake1Speed(-gamepad2.right_trigger);
+                        robot.setIntakeSpeed(-gamepad2.right_trigger);
                     } else {
-                        robot.setIntake1Speed(gamepad2.right_trigger);
+                        robot.setIntakeSpeed(gamepad2.right_trigger);
                     }
                 }
-                else if(robot.intakeBucketState == Robot.IntakeBucket.LEFT) {
+                else if(false) {
                     if (gamepad2.right_bumper) {
-                        robot.setIntake2Speed(-gamepad2.right_trigger);
+                        robot.setIntakeSpeed(-gamepad2.right_trigger);
                     } else {
-                        robot.setIntake2Speed(gamepad2.right_trigger);
+                        robot.setIntakeSpeed(gamepad2.right_trigger);
                     }
                 }
                 //stop if we are up
                 else{
-                    robot.setIntake1Speed(0);
-                    robot.setIntake2Speed(0);
+                    robot.stopIntake();
                 }
             }
 
@@ -268,10 +277,7 @@ public class DriverControled extends LinearOpMode {
 
             //motor encoders
             telemetry.addData("extend: ", robot.extend.getCurrentPosition());
-            telemetry.addData("intake1: ", robot.intake1.getCurrentPosition());
-            telemetry.addData("intake1: ", robot.intake1.getCurrentPosition() % 45);
-            telemetry.addData("intake1: ", robot.intake1.getTargetPosition());
-            telemetry.addData("lift: ", robot.lift.getPosition());
+            telemetry.addData("lift: ", robot.lift1.getPosition());
             telemetry.addData("bucket: ", robot.bucket.getPosition());
             telemetry.addData("intake: ", intakePos);
 

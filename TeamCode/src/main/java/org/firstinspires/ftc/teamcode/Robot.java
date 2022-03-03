@@ -21,14 +21,13 @@ public class Robot {
     public DcMotor extend;
 
     //non linear slide side
-    public DcMotor intake1;
-    //linear slide side
-    public DcMotor intake2;
+    public DcMotor intake;
 
     public DcMotor car;
 
-    public Servo intake;
-    public Servo lift;
+    public DcMotor intakePivot;
+    public Servo lift1;
+    public Servo lift2;
     public Servo bucket;
 
     public Servo encoderservo;
@@ -112,13 +111,13 @@ public class Robot {
 
     public Robot(HardwareMap hardwareMap) {
         extend = hardwareMap.get(DcMotor.class, "extend");
-        intake1 = hardwareMap.get(DcMotor.class, "intake1");
-        intake2 = hardwareMap.get(DcMotor.class, "intake2");
+        intake = hardwareMap.get(DcMotor.class, "intake");
         car = hardwareMap.get(DcMotor.class, "car");
 
-        lift = hardwareMap.get(Servo.class, "lift");
+        lift1 = hardwareMap.get(Servo.class, "lift1");
+        lift2 = hardwareMap.get(Servo.class, "lift2");
         bucket = hardwareMap.get(Servo.class, "bucket");
-        intake = hardwareMap.get(Servo.class, "intake");
+        intakePivot = hardwareMap.get(DcMotor.class, "intakePivot");
 
         encoderservo = hardwareMap.get(Servo.class, "encoderservo");
 
@@ -149,54 +148,6 @@ public class Robot {
 
     }
 
-    public void updateIntake(){
-        switch (intakeState){
-            case INTAKE:{
-                setIntake1Speed(1);
-
-                //if we sense something
-                if(getColor(1) < 1){
-                    //raise intake scoop
-                    intakeState = IntakeState.LIFT;
-                    intakeClock = System.currentTimeMillis();
-                }
-                break;
-            }
-            case LIFT:{
-                if(System.currentTimeMillis() - intakeClock > 1000) {
-                    //stop intake
-                    setIntake1Speed(0);
-
-                    //if intake has stopped
-                    if (intake1.getPower() == 0) {
-
-                        //raise intake scoop
-                        intake.setPosition(0.5);
-
-                        //reset time so we know when to go down
-                        intakeClock = System.currentTimeMillis();
-                        intakeState = IntakeState.RESET;
-                    }
-                }
-                else{
-                    setIntake1Speed(0);
-                }
-                break;
-            }
-            case RESET:{
-                setIntake1Speed(0);
-
-                //if time has passed lower intake scoop
-                if(System.currentTimeMillis() - intakeClock > 1000){
-                    intake.setPosition(0.10);
-                }
-
-                //note the extend code will switch back to intake when freight has dumped so we do not possess more than 1 freight
-                break;
-            }
-        }
-    }
-
     public void setIntakeBucketState(IntakeBucket intakeBucketState) {
         if(this.intakeBucketState != intakeBucketState) {
 
@@ -209,7 +160,7 @@ public class Robot {
     }
 
     public void updateIntakeBucket(){
-        if(intakeBucketState == IntakeBucket.UP){
+        /*if(intakeBucketState == IntakeBucket.UP){
             if(intakeBucketlastState == IntakeBucket.RIGHT){
                 intake.setPosition(0.5);
             }
@@ -222,7 +173,7 @@ public class Robot {
         }
         else if(intakeBucketState == IntakeBucket.LEFT) {
             intake.setPosition(0.72);
-        }
+        }*/
     }
 
     public void updateExtend() throws InterruptedException {
@@ -380,89 +331,18 @@ public class Robot {
         this.level = level;
     }
 
-    public void setIntake1Speed(double i) {
 
-        //int intakePosition = (int) (intake1.getCurrentPosition() % 45);
-
-       // if(!intake1IsVerticle) {
-       //     intake1Target = intake1.getCurrentPosition() - intakePosition;
-        //    intake1IsVerticle = true;
-        //}
-
-        /*
-        if(i == 0 && (intakePosition > 5 && intakePosition < 40)){
-            if(intakePosition > 30){
-                intake1.setPower(0.2);
-            }
-            else if(intakePosition < 15){
-                intake1.setPower(-0.2);
-            }
-            else {
-                intake1.setPower(0.3);
-            }
-       */
-        if(System.currentTimeMillis() - intakebucketClock < 2000 && i == 0) {
-            if(intakeBucketState == IntakeBucket.RIGHT) {
-                i = -0.5;
-            }
-            if((intakeBucketState == IntakeBucket.UP && intakeBucketlastState == IntakeBucket.RIGHT)  || (intakeBucketState == IntakeBucket.LEFT && intakeBucketlastState == IntakeBucket.RIGHT)) {
-                i = 0.5;
-            }
+    public void setIntakeSpeed(double speed){
+        if(true){
+            intake.setPower(0 - speed);
         }
-        intake1.setPower(i);
-
-         /*
-        if(i == 0){
-            intake1.setTargetPosition(intake1Target);
-            intake1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            intake1.setPower(1);
+        else{
+            intake.setPower(speed);
         }
-        else {
-            intake1IsVerticle = false;
-            intake1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            intake1.setPower(i);
-        }*/
     }
 
-    public void setIntake2Speed(double i) {
-        /*
-        int intakePosition = (int) (intake2.getCurrentPosition() % 45);
-
-        if(i == 0 && (intakePosition > 5 && intakePosition < 40)){
-            if(intakePosition > 30){
-                intake2.setPower(0.35);
-            }
-            else if(intakePosition < 15){
-                intake2.setPower(-0.35);
-            }
-            else {
-                intake2.setPower(0.5);
-            }
-        }
-        else {
-            intake2.setPower(i);
-        }*/
-
-        if(System.currentTimeMillis() - intakebucketClock < 2000 && i == 0) {
-            if(intakeBucketState == IntakeBucket.LEFT) {
-                i = -0.5;
-            }
-            if((intakeBucketState == IntakeBucket.UP && intakeBucketlastState == IntakeBucket.LEFT)  || (intakeBucketState == IntakeBucket.RIGHT && intakeBucketlastState == IntakeBucket.LEFT)) {
-                i = 0.5;
-            }
-        }
-        intake2.setPower(i);
-    }
-
-    public void setIntakeSpeed(double speed,int side){
-        if(side == 1){
-            setIntake1Speed(speed);
-            setIntake2Speed(0);
-        }
-        else if(side == -1){
-            setIntake2Speed(speed);
-            setIntake1Speed(0);
-        }
+    public void stopIntake(){
+        intake.setPower(0);
     }
 
 
@@ -471,15 +351,15 @@ public class Robot {
     }
 
     public void updateLiftServo(){
-        if(Math.abs(lift.getPosition() - liftPosition) > 0.1) {
-            if (lift.getPosition() > liftPosition) {
-                lift.setPosition(lift.getPosition() - 0.1);
-            } else if (lift.getPosition() < liftPosition) {
-                lift.setPosition(lift.getPosition() + 0.1);
+        if(Math.abs(lift1.getPosition() - liftPosition) > 0.1) {
+            if (lift1.getPosition() > liftPosition) {
+                lift1.setPosition(lift1.getPosition() - 0.1);
+            } else if (lift1.getPosition() < liftPosition) {
+                lift1.setPosition(lift1.getPosition() + 0.1);
             }
         }
         else{
-            lift.setPosition(liftPosition);
+            lift1.setPosition(liftPosition);
         }
     }
 

@@ -1,8 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
-import com.acmerobotics.roadrunner.geometry.Vector2d;
-import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -152,7 +150,7 @@ public class AutoNoRoadrunner extends LinearOpMode {
             }
             drive.setDrivePower(new Pose2d(0,0,0));
 
-            robot.setIntakeSpeed(1,side * -1);
+            robot.setIntakeSpeed(1);
             if(preload2){
                 //2nd preload
                 drive.setDrivePower(new Pose2d(-0.3 * side,0,0));
@@ -193,7 +191,7 @@ public class AutoNoRoadrunner extends LinearOpMode {
 
                 robot.setIntakeBucketState(side == 1 ? Robot.IntakeBucket.RIGHT /*red*/ : Robot.IntakeBucket.LEFT /*blue*/);
 
-                robot.setIntakeSpeed(1,side);
+                robot.setIntakeSpeed(1);
 
                 //drive into warehouse
                 drive.setDrivePower(new Pose2d(0.75 * side,0,0));
@@ -210,9 +208,9 @@ public class AutoNoRoadrunner extends LinearOpMode {
                 drive.setDrivePower(new Pose2d(0,0,0));
 
                 //turn off intake and raise intake bucket
-                robot.setIntakeSpeed(-1,side);
+                robot.setIntakeSpeed(-1);
                 sleep(100);
-                robot.setIntakeSpeed(0,side);
+                robot.stopIntake();
                 robot.setIntakeBucketState(Robot.IntakeBucket.UP);
 
                 telemetry.addData("Time: ", System.currentTimeMillis() - autoTime);
@@ -235,7 +233,7 @@ public class AutoNoRoadrunner extends LinearOpMode {
                     robot.updateExtend();
                     robot.updateLiftServo();
                     robot.updateIntakeBucket();
-                    robot.setIntake1Speed(0);
+                    robot.stopIntake();
                 }
                 drive.setDrivePower(new Pose2d(0,0,0));
 
@@ -250,7 +248,7 @@ public class AutoNoRoadrunner extends LinearOpMode {
                 while (robot.extendState != Robot.ExtendState.RESET && opModeIsActive()) {
                     robot.updateExtend();
                     robot.updateLiftServo();
-                    robot.setIntakeSpeed(0,side);
+                    robot.stopIntake();
                 }
             }
         }

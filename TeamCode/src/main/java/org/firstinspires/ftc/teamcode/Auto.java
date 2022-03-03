@@ -129,7 +129,7 @@ public class Auto extends LinearOpMode {
                 //put encoder servo down
                 robot.encoderservo.setPosition(0.25);
 
-                robot.setIntake1Speed(1);
+                //robot.setIntake1Speed(1);
 
                 //drive into warehouse
                 drive.followTrajectoryAsync(traj2);
@@ -138,13 +138,13 @@ public class Auto extends LinearOpMode {
                     drive.update();
                     robot.updateExtend();
                     robot.updateLiftServo();
-                    robot.updateIntakeBucket();robot.setIntake1Speed(1);
+                    //robot.updateIntakeBucket();robot.setIntake1Speed(1);
                 }
 
                 //turn off intake and raise intake bucket
-                robot.setIntake1Speed(-1);
+                //robot.setIntake1Speed(-1);
                 sleep(100);
-                robot.setIntake1Speed(0);
+                //robot.setIntake1Speed(0);
                 robot.setIntakeBucketState(Robot.IntakeBucket.UP);
 
                 //drive to hub
@@ -154,7 +154,7 @@ public class Auto extends LinearOpMode {
                     robot.updateExtend();
                     robot.updateLiftServo();
                     robot.updateIntakeBucket();
-                    robot.setIntake1Speed(0);
+                    //robot.setIntake1Speed(0);
                 }
 
                 //set target to high goal and extend
@@ -168,7 +168,7 @@ public class Auto extends LinearOpMode {
                 while (robot.extendState != Robot.ExtendState.RESET && opModeIsActive()) {
                     robot.updateExtend();
                     robot.updateLiftServo();
-                    robot.setIntake1Speed(0);
+                    //robot.setIntake1Speed(0);
                 }
 
                 if(System.currentTimeMillis() - autoTime < 9000){
