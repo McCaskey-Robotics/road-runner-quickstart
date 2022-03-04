@@ -32,13 +32,7 @@ public class Robot {
 
     public Servo encoderservo;
 
-    public Servo tapeliftservo;
-    public CRServo taperotateservo;
-    public CRServo tapeextendservo;
-
-    public static double tapelift = 0.34;
     public double liftPosition = 0.4;
-    public double tapeRotateSpeed = 0;
 
     public double sharedExtend = 700;
 
@@ -89,11 +83,6 @@ public class Robot {
         RIGHT,      //right
     }
 
-    enum driver2 {
-        tape,       //left
-        other,     //up
-    }
-
     public IntakeState intakeState = IntakeState.MANUAL;
     public ExtendState extendState = ExtendState.INIT;
     public IntakeBucket intakeBucketState = IntakeBucket.UP;
@@ -120,10 +109,6 @@ public class Robot {
         intakePivot = hardwareMap.get(DcMotor.class, "intakePivot");
 
         encoderservo = hardwareMap.get(Servo.class, "encoderservo");
-
-        tapeextendservo = hardwareMap.get(CRServo.class, "tapeextendservo");
-        tapeliftservo = hardwareMap.get(Servo.class, "tapeliftservo");
-        taperotateservo = hardwareMap.get(CRServo.class, "taperotateservo");
 
         extendStop = hardwareMap.get(DigitalChannel.class,"extendStop");
 
@@ -200,7 +185,7 @@ public class Robot {
                 if(level > 0) {
                     if (extend.getCurrentPosition() < 1700) {
                         bucket.setPosition(0);
-                        setLiftPosition(0.04);
+                        setLiftPosition(0.15);
                     }
                 }
                 else{
@@ -211,7 +196,7 @@ public class Robot {
                         }
 
                         if(System.currentTimeMillis() - extendClock2 > 500)
-                            setLiftPosition(0.04);
+                            setLiftPosition(0.15);
                     }
                 }
 
@@ -351,16 +336,21 @@ public class Robot {
     }
 
     public void updateLiftServo(){
-        if(Math.abs(lift1.getPosition() - liftPosition) > 0.1) {
+        /*if(Math.abs(lift1.getPosition() - liftPosition) > 100) {
             if (lift1.getPosition() > liftPosition) {
                 lift1.setPosition(lift1.getPosition() - 0.1);
+                lift2.setPosition(1 - lift1.getPosition());
             } else if (lift1.getPosition() < liftPosition) {
                 lift1.setPosition(lift1.getPosition() + 0.1);
+                lift2.setPosition( 1 - lift1.getPosition());
             }
         }
-        else{
-            lift1.setPosition(liftPosition);
-        }
+        else{*/
+
+        lift1.setPosition(liftPosition);
+        lift2.setPosition(1 - liftPosition);
+
+        //}
     }
 
     //void setExtendSpeed(double s){

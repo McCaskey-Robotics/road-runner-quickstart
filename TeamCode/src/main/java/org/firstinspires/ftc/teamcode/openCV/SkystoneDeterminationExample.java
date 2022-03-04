@@ -208,6 +208,7 @@ public class SkystoneDeterminationExample extends LinearOpMode
         @Override
         public Mat processFrame(Mat input)
         {
+            Core.rotate(input,input,Core.ROTATE_180);
             /*
              * Overview of what we're doing:
              *

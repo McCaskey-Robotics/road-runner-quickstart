@@ -31,8 +31,6 @@ public class DriverControled extends LinearOpMode {
         boolean erik = false;
         boolean dpadDownLast = false;
 
-        Robot.driver2 driver2Mode = Robot.driver2.other;
-
         drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         waitForStart();
@@ -113,36 +111,23 @@ public class DriverControled extends LinearOpMode {
             robot.updateIntakeBucket();
              */
             if(gamepad2.dpad_left){
-                robot.intakePivot.setPower(-0.1);
+                robot.intakePivot.setPower(-0.3);
             }
             else if(gamepad2.dpad_right){
-                robot.intakePivot.setPower(0.1);
+                robot.intakePivot.setPower(0.3);
             }
             else{
                 robot.intakePivot.setPower(0);
             }
 
             /* INTAKE */
-            if(robot.intakeState == Robot.IntakeState.MANUAL){
-                if(true) {
-                    if (gamepad2.right_bumper) {
-                        robot.setIntakeSpeed(-gamepad2.right_trigger);
-                    } else {
-                        robot.setIntakeSpeed(gamepad2.right_trigger);
-                    }
-                }
-                else if(false) {
-                    if (gamepad2.right_bumper) {
-                        robot.setIntakeSpeed(-gamepad2.right_trigger);
-                    } else {
-                        robot.setIntakeSpeed(gamepad2.right_trigger);
-                    }
-                }
-                //stop if we are up
-                else{
-                    robot.stopIntake();
-                }
+
+            if (gamepad2.right_bumper) {
+                robot.setIntakeSpeed(-gamepad2.right_trigger);
+            } else {
+                robot.setIntakeSpeed(gamepad2.right_trigger);
             }
+
 
             /* CAROUSEL */
             robot.setCarSpeed(gamepad1.right_trigger - gamepad1.left_trigger);
@@ -150,32 +135,8 @@ public class DriverControled extends LinearOpMode {
             //robot.updateIntake();
             robot.updateExtend();
 
-            if(gamepad2.a){
-                driver2Mode = Robot.driver2.other;
-            }
-            else if(gamepad2.b || Math.abs(gamepad2.right_stick_y) > 0.1 ||  Math.abs(gamepad2.right_stick_x) > 0.1){
-                driver2Mode = Robot.driver2.tape;
-            }
 
-            if(driver2Mode == Robot.driver2.tape) {
-                Robot.tapelift -= -gamepad2.left_stick_y * 0.01;
-
-                Robot.tapelift = Math.max(0, Robot.tapelift);
-                Robot.tapelift = Math.min(1, Robot.tapelift);
-
-                robot.tapeextendservo.setPower(gamepad2.right_stick_y);
-                robot.tapeliftservo.setPosition(Robot.tapelift);
-
-                //accelerate and decelerate to make it not as jerky
-                if(robot.tapeRotateSpeed > gamepad2.right_stick_x) robot.tapeRotateSpeed -= 0.1;
-                if(robot.tapeRotateSpeed < gamepad2.right_stick_x) robot.tapeRotateSpeed += 0.1;
-                if(Math.abs(gamepad2.right_stick_x) <= 0.1 && Math.abs(robot.tapeRotateSpeed) <= 0.1) robot.tapeRotateSpeed = 0;
-                robot.taperotateservo.setPower(-robot.tapeRotateSpeed);
-
-            }
-            else {
-                robot.sharedExtend = (-gamepad2.left_stick_y * 400) + 600;
-            }
+            robot.sharedExtend = (-gamepad2.left_stick_y * 400) + 600;
 
             //robot.encoderservo.setPosition(0.25);
 
@@ -203,39 +164,6 @@ public class DriverControled extends LinearOpMode {
 
              */
 
-            liftPos += gamepad2.right_stick_y * 0.01;
-            bucketPos += gamepad2.right_stick_x * 0.03;
-
-            if(gamepad2.a){//home
-                liftPos = 0.94;
-                bucketPos = 0.08;
-            }
-            if(gamepad2.x){//high
-                liftPos = 0.4;
-                bucketPos = 0.45;
-            }
-            if(gamepad2.b){//low
-                liftPos = 0;
-                bucketPos = 0.95;
-            }
-            if(gamepad2.y){//place
-                if(liftPos == 0.4) {
-                    bucketPos = 0.18;
-                }
-                if(liftPos == 0) {
-                    bucketPos = 0.54;
-                }
-
-            }
-
-            liftPos = Math.max(0,liftPos);
-            liftPos = Math.min(1,liftPos);
-
-            bucketPos = Math.max(0,bucketPos);
-            bucketPos = Math.min(1,bucketPos);
-
-            //robot.bucket.setPosition(bucketPos);
-            //robot.setLiftPosition(liftPos);
 
             robot.updateLiftServo();
 /*
@@ -277,11 +205,11 @@ public class DriverControled extends LinearOpMode {
 
             //motor encoders
             telemetry.addData("extend: ", robot.extend.getCurrentPosition());
-            telemetry.addData("lift: ", robot.lift1.getPosition());
+            telemetry.addData("lift1: ", robot.lift1.getPosition());
+            telemetry.addData("lift2: ", robot.lift2.getPosition());
             telemetry.addData("bucket: ", robot.bucket.getPosition());
             telemetry.addData("intake: ", intakePos);
 
-            telemetry.addData("tape lift: ", robot.tapeliftservo.getPosition());
             telemetry.addData("encoderServo: ", robot.encoderservo.getPosition());
 
             //digital channels
