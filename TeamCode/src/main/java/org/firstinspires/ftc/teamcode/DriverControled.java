@@ -38,6 +38,9 @@ public class DriverControled extends LinearOpMode {
         //put encoder servo down
         robot.encoderservo.setPosition(0);
 
+        double l = 0.5;
+        double b = 0.5;
+
         while (!isStopRequested()) {
 
             //Erik
@@ -111,10 +114,10 @@ public class DriverControled extends LinearOpMode {
             robot.updateIntakeBucket();
              */
             if(gamepad2.dpad_left){
-                robot.intakePivot.setPower(-0.3);
+                robot.intakePivot.setPower(-0.5);
             }
             else if(gamepad2.dpad_right){
-                robot.intakePivot.setPower(0.3);
+                robot.intakePivot.setPower(0.5);
             }
             else{
                 robot.intakePivot.setPower(0);
@@ -133,7 +136,7 @@ public class DriverControled extends LinearOpMode {
             robot.setCarSpeed(gamepad1.right_trigger - gamepad1.left_trigger);
 
             //robot.updateIntake();
-            robot.updateExtend();
+            //todo robot.updateExtend();
 
 
             robot.sharedExtend = (-gamepad2.left_stick_y * 400) + 600;
@@ -163,9 +166,22 @@ public class DriverControled extends LinearOpMode {
 
 
              */
+             l += gamepad2.right_stick_y / 100;
+             //b += gamepad2.left_stick_y / 100;
+
+            //https://www.desmos.com/calculator/neehsxdyea
+
+            double slope = (0.4 - 0.05) / (0.6 - 0.16);
+            b = (slope * (l - 0.16)) + 0.05;
+
+            robot.setLiftPosition(l);
+            robot.bucket.setPosition(b);
 
 
             robot.updateLiftServo();
+
+            if(gamepad2.right_bumper)
+                gamepad2.rumble(500);
 /*
 
             robot.setIntake1Speed(gamepad2.left_trigger - gamepad2.right_trigger);
@@ -230,6 +246,13 @@ public class DriverControled extends LinearOpMode {
             //telemetry.addData("red ", robot.getColor(1,2));
             //telemetry.addData("green ", robot.getColor(2,2));
             //telemetry.addData("blue ", robot.getColor(3,2));
+
+            telemetry.addData("1 ", gamepad2.touchpad_finger_1);
+            telemetry.addData("1x ", gamepad2.touchpad_finger_1_x);
+            telemetry.addData("1y ", gamepad2.touchpad_finger_1_y);
+            telemetry.addData("2 ", gamepad2.touchpad_finger_2);
+            telemetry.addData("2x ", gamepad2.touchpad_finger_2_x);
+            telemetry.addData("2y ", gamepad2.touchpad_finger_2_y);
 
             telemetry.addData("time: ", System.currentTimeMillis() - robot.intakeClock);
             telemetry.addData("time: ", robot.intakeState);

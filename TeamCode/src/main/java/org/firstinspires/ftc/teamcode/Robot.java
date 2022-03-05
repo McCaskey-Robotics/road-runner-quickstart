@@ -8,7 +8,9 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.PwmControl;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.ServoImplEx;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
@@ -28,7 +30,7 @@ public class Robot {
     public DcMotor intakePivot;
     public Servo lift1;
     public Servo lift2;
-    public Servo bucket;
+    public ServoImplEx bucket;
 
     public Servo encoderservo;
 
@@ -105,7 +107,7 @@ public class Robot {
 
         lift1 = hardwareMap.get(Servo.class, "lift1");
         lift2 = hardwareMap.get(Servo.class, "lift2");
-        bucket = hardwareMap.get(Servo.class, "bucket");
+        bucket = hardwareMap.get(ServoImplEx.class, "bucket");
         intakePivot = hardwareMap.get(DcMotor.class, "intakePivot");
 
         encoderservo = hardwareMap.get(Servo.class, "encoderservo");
@@ -116,6 +118,10 @@ public class Robot {
         extend.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         //extend.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        intakePivot.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        bucket.setPwmRange(new PwmControl.PwmRange(500, 2500));
 
         extend.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
