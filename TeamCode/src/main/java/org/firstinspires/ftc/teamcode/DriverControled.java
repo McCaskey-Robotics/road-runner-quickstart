@@ -4,6 +4,7 @@ import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 
@@ -27,6 +28,8 @@ public class DriverControled extends LinearOpMode {
         double bucketPos = 0.08;
         double liftPos = 0.93;
         double intakePos = 0.45;
+
+        boolean lastGuide = false;
 
         boolean erik = false;
         boolean dpadDownLast = false;
@@ -86,11 +89,19 @@ public class DriverControled extends LinearOpMode {
             }
 
             //when to dump
-            robot.autoDump = gamepad2.left_bumper;
+            //robot.autoDump = gamepad2.left_bumper;
 
             //cancle extend
             if(gamepad2.left_trigger > 0.5)
                 robot.extendState = Robot.ExtendState.RESET;
+
+            boolean g = gamepad2.guide;
+            if(g && !lastGuide){
+                robot.autoExtend = !robot.autoExtend;
+            }
+            lastGuide = g;
+
+            robot.autoDump = !gamepad2.left_bumper;
 
 
             /* INTAKE BUCKET */
@@ -109,11 +120,11 @@ public class DriverControled extends LinearOpMode {
             if(d && !dpadDownLast){
                 robot.setIntakeBucketState(robot.intakeBucketlastState);
             }
-            dpadDownLast = d;
+            dpadDownLast = d;*/
 
-            robot.updateIntakeBucket();
-             */
-            if(gamepad2.dpad_left){
+            //robot.updateIntakeBucket();
+
+             if(gamepad2.dpad_left){
                 robot.intakePivot.setPower(-0.5);
             }
             else if(gamepad2.dpad_right){
@@ -122,8 +133,6 @@ public class DriverControled extends LinearOpMode {
             else{
                 robot.intakePivot.setPower(0);
             }
-
-            /* INTAKE */
 
             if (gamepad2.right_bumper) {
                 robot.setIntakeSpeed(-gamepad2.right_trigger);
@@ -136,8 +145,10 @@ public class DriverControled extends LinearOpMode {
             robot.setCarSpeed(gamepad1.right_trigger - gamepad1.left_trigger);
 
             //robot.updateIntake();
-            //todo robot.updateExtend();
+            if(Math.abs(gamepad2.left_stick_y) > 0.1 || Math.abs(gamepad2.right_stick_y) > 0.1)
+                robot.extendState = Robot.ExtendState.MANUAL;
 
+            robot.updateExtend(gamepad2);
 
             robot.sharedExtend = (-gamepad2.left_stick_y * 400) + 600;
 
@@ -145,70 +156,8 @@ public class DriverControled extends LinearOpMode {
 
             //robot.setExtendSpeed(gamepad2.left_stick_y);
 
-            //lift pos = 0.758
-
-            /*
-
-            reset
-            l 0.04
-            b 0
-
-            0.3
-            0.18
-
-            0.73
-            0.56
-
-            high
-            l 0.73
-            b 0.91
-
-
-
-             */
-             l += gamepad2.right_stick_y / 100;
-             //b += gamepad2.left_stick_y / 100;
-
-            //https://www.desmos.com/calculator/neehsxdyea
-
-            double slope = (0.4 - 0.05) / (0.6 - 0.16);
-            b = (slope * (l - 0.16)) + 0.05;
-
-            robot.setLiftPosition(l);
-            robot.bucket.setPosition(b);
-
-
             robot.updateLiftServo();
 
-            if(gamepad2.right_bumper)
-                gamepad2.rumble(500);
-/*
-
-            robot.setIntake1Speed(gamepad2.left_trigger - gamepad2.right_trigger);
-
-            if(gamepad2.dpad_up){
-                intakePos += 0.02;
-            }
-            else if(gamepad2.dpad_down){
-                intakePos -= 0.02;
-            }
-
-            intakePos = Math.max(0.14,intakePos);
-            intakePos = Math.min(0.77,intakePos);
-            if(robot.getColor(-1,1) < 1 && robot.intake1.getPower() == 0){
-                robot.intake.setPosition(0.5);
-            }
-            else {
-                robot.intake.setPosition(intakePos);
-            }
-
-
-            if (gamepad1.a) {
-                robot.setCarSpeed(1);
-            }
-            else {
-                robot.setCarSpeed(0);
-            }*/
 
             drive.update();
 
@@ -229,8 +178,9 @@ public class DriverControled extends LinearOpMode {
             telemetry.addData("encoderServo: ", robot.encoderservo.getPosition());
 
             //digital channels
-            telemetry.addData("extendStop: ", robot.extendStop.getState());
-
+            telemetry.addData("auto extend: ", robot.autoExtend);
+            telemetry.addData("auto dump: ", robot.autoDump);
+            telemetry.addData("extendState: ", robot.extendState);
 
             //color sensor
             telemetry.addData("intake s ", robot.intakeBucketState);
@@ -246,13 +196,6 @@ public class DriverControled extends LinearOpMode {
             //telemetry.addData("red ", robot.getColor(1,2));
             //telemetry.addData("green ", robot.getColor(2,2));
             //telemetry.addData("blue ", robot.getColor(3,2));
-
-            telemetry.addData("1 ", gamepad2.touchpad_finger_1);
-            telemetry.addData("1x ", gamepad2.touchpad_finger_1_x);
-            telemetry.addData("1y ", gamepad2.touchpad_finger_1_y);
-            telemetry.addData("2 ", gamepad2.touchpad_finger_2);
-            telemetry.addData("2x ", gamepad2.touchpad_finger_2_x);
-            telemetry.addData("2y ", gamepad2.touchpad_finger_2_y);
 
             telemetry.addData("time: ", System.currentTimeMillis() - robot.intakeClock);
             telemetry.addData("time: ", robot.intakeState);
