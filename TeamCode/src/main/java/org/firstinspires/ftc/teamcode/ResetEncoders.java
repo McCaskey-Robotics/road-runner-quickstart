@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
  * encoder localizer heading may be significantly off if the track width has not been tuned).
  */
 @TeleOp(group = "drive")
-public class ResetExtendEncoder extends LinearOpMode {
+public class ResetEncoders extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         Robot robot = new Robot(hardwareMap);
@@ -25,6 +25,9 @@ public class ResetExtendEncoder extends LinearOpMode {
         if(!isStopRequested()) {
             robot.extend.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             robot.extend.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+            robot.intakePivot.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            robot.intakePivot.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         }
     }
 }

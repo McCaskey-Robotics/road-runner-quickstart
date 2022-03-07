@@ -41,8 +41,7 @@ public class DriverControled extends LinearOpMode {
         //put encoder servo down
         robot.encoderservo.setPosition(0);
 
-        double l = 0.5;
-        double b = 0.5;
+        robot.autoDump = false;
 
         while (!isStopRequested()) {
 
@@ -77,32 +76,52 @@ public class DriverControled extends LinearOpMode {
                 );
             }
 
+            boolean g = gamepad2.guide;
 
-            if(gamepad2.x){
-                robot.setLevel(0);
+            //shared
+            if(gamepad2.square){
+
+                robot.autoExtend =  !g;
+
+                robot.setTarget("shared");
                 robot.extendState = Robot.ExtendState.EXTEND;
             }
 
-            if(gamepad2.y){
-                robot.setLevel(3);
+            //high goal
+            if(gamepad2.triangle){
+
+                robot.autoExtend =  !g;
+
+                robot.setTarget("high");
                 robot.extendState = Robot.ExtendState.EXTEND;
             }
 
-            //when to dump
-            //robot.autoDump = gamepad2.left_bumper;
+            //cap
+            if(gamepad2.cross){
+                robot.autoExtend =  !g;
+
+                robot.setTarget("cap");
+                robot.extendState = Robot.ExtendState.EXTEND;
+            }
 
             //cancle extend
             if(gamepad2.left_trigger > 0.5)
                 robot.extendState = Robot.ExtendState.RESET;
 
-            boolean g = gamepad2.guide;
-            if(g && !lastGuide){
-                robot.autoExtend = !robot.autoExtend;
+
+            if(gamepad2.left_bumper){
+                robot.extendState = Robot.ExtendState.DUMP;
             }
-            lastGuide = g;
 
-            robot.autoDump = !gamepad2.left_bumper;
+            if(Math.abs(gamepad2.left_stick_y) > 0.1 || Math.abs(gamepad2.right_stick_y) > 0.1) {
+                if(robot.extendState != Robot.ExtendState.MANUAL) {
+                    robot.l = robot.lift1.getPosition();
+                    robot.extendState = Robot.ExtendState.MANUAL;
+                }
+            }
 
+            robot.updateExtend(gamepad2);
+            robot.updateLiftServo();
 
             /* INTAKE BUCKET */
             /*if(gamepad2.dpad_up){
@@ -124,17 +143,22 @@ public class DriverControled extends LinearOpMode {
 
             //robot.updateIntakeBucket();
 
+
              if(gamepad2.dpad_left){
-                robot.intakePivot.setPower(-0.5);
+                robot.setIntakeBucketState(Robot.IntakeBucket.LEFT);
             }
             else if(gamepad2.dpad_right){
-                robot.intakePivot.setPower(0.5);
+                robot.setIntakeBucketState(Robot.IntakeBucket.RIGHT);
             }
-            else{
-                robot.intakePivot.setPower(0);
+            else if(gamepad2.dpad_up){
+                robot.setIntakeBucketState(Robot.IntakeBucket.UP);
             }
 
-            if (gamepad2.right_bumper) {
+            robot.updateIntakeBucket();
+
+
+
+            if (!gamepad2.right_bumper ^ (robot.intakePivot.getCurrentPosition() > 0)) {
                 robot.setIntakeSpeed(-gamepad2.right_trigger);
             } else {
                 robot.setIntakeSpeed(gamepad2.right_trigger);
@@ -144,19 +168,6 @@ public class DriverControled extends LinearOpMode {
             /* CAROUSEL */
             robot.setCarSpeed(gamepad1.right_trigger - gamepad1.left_trigger);
 
-            //robot.updateIntake();
-            if(Math.abs(gamepad2.left_stick_y) > 0.1 || Math.abs(gamepad2.right_stick_y) > 0.1)
-                robot.extendState = Robot.ExtendState.MANUAL;
-
-            robot.updateExtend(gamepad2);
-
-            robot.sharedExtend = (-gamepad2.left_stick_y * 400) + 600;
-
-            //robot.encoderservo.setPosition(0.25);
-
-            //robot.setExtendSpeed(gamepad2.left_stick_y);
-
-            robot.updateLiftServo();
 
 
             drive.update();
@@ -183,9 +194,11 @@ public class DriverControled extends LinearOpMode {
             telemetry.addData("extendState: ", robot.extendState);
 
             //color sensor
+            telemetry.addData("intake Pivot ", robot.intakePivot.getCurrentPosition());
             telemetry.addData("intake s ", robot.intakeBucketState);
-            telemetry.addData("intake last s ", robot.intakeBucketlastState);
-            telemetry.addData("intake clock ", System.currentTimeMillis() - robot.intakebucketClock);
+            telemetry.addData("intake sin ", Math.sin(Math.toRadians((robot.intakePivot.getCurrentPosition() / 130.0) * 90.0)));
+            telemetry.addData("intake deg ", (robot.intakePivot.getCurrentPosition() / 130.0) * 90.0);
+
             //telemetry.addData("alpha ", robot.getColor(0,1));
             //telemetry.addData("red ", robot.getColor(1,1));
             //telemetry.addData("green ", robot.getColor(2,1));
