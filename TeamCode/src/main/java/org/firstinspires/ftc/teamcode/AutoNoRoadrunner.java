@@ -32,6 +32,7 @@ public class AutoNoRoadrunner extends LinearOpMode {
 
         //if we should strafe towards the wall
         SampleMecanumDrive.wall = true;
+        robot.autoDump = true;
 
         drive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
@@ -39,9 +40,6 @@ public class AutoNoRoadrunner extends LinearOpMode {
 
         //red / blue side
         int side = 1;
-
-        //if we should do 2nd pre load
-        boolean preload2 = false;
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         phoneCam = OpenCvCameraFactory.getInstance().createInternalCamera(OpenCvInternalCamera.CameraDirection.BACK, cameraMonitorViewId);
@@ -81,9 +79,6 @@ public class AutoNoRoadrunner extends LinearOpMode {
             if(gamepad1.x) side = -1;
             if(gamepad1.b) side = 1;
 
-            if(gamepad1.dpad_up) preload2 = true;
-            if(gamepad1.dpad_down) preload2 = false;
-
             telemetry.addLine("Analysis" + pipeline.getAnalysis());
             if(side == 1) {
                 telemetry.addLine(String.format("<big><font color=#%02x%02x%02x>red</font><big>", 255, 0, 0));
@@ -92,13 +87,6 @@ public class AutoNoRoadrunner extends LinearOpMode {
             else {
                 telemetry.addLine(String.format("<big><font color=#%02x%02x%02x>blue</font><big>", 0, 0, 255));
                         //.addData("side", " blue");
-            }
-
-            if(preload2) {
-                telemetry.addLine(String.format("<big><font color=#%02x%02x%02x>2nd preload</font><big>", 0, 255, 0));
-            }
-            else {
-                telemetry.addLine(String.format("<big><font color=#%02x%02x%02x>no 2nd preload</font><big>", 255, 0, 0));
             }
 
             telemetry.update();
@@ -129,13 +117,8 @@ public class AutoNoRoadrunner extends LinearOpMode {
             robot.extendState = Robot.ExtendState.EXTEND;
 
             //intake down
-            if(preload2){
-                //reverse for 2nd preload
-                robot.setIntakeBucketState(side == 1 ? Robot.IntakeBucket.LEFT /*red*/ : Robot.IntakeBucket.RIGHT /*blue*/);
-            }
-            else {
-                robot.setIntakeBucketState(side == 1 ? Robot.IntakeBucket.RIGHT /*red*/ : Robot.IntakeBucket.LEFT /*blue*/);
-            }
+            robot.setIntakeBucketState(side == 1 ? Robot.IntakeBucket.RIGHT /*red*/ : Robot.IntakeBucket.LEFT /*blue*/);
+
 
             //drive to hub
             drive.setDrivePower(new Pose2d(-0.5 * side,0,0));
@@ -144,48 +127,13 @@ public class AutoNoRoadrunner extends LinearOpMode {
                 robot.updateExtend();
                 robot.updateLiftServo();
                 robot.updateIntakeBucket();
-                if(drive.getPoseEstimate().getX() < -15){
+                if(drive.getPoseEstimate().getX() < -20){
                     drive.setDrivePower(new Pose2d(0,0,0));
                 }
             }
             drive.setDrivePower(new Pose2d(0,0,0));
 
             robot.setIntakeSpeed(1);
-            if(preload2){
-                //2nd preload
-                drive.setDrivePower(new Pose2d(-0.3 * side,0,0));
-                while (robot.getColor(side * -1) > 2 && opModeIsActive() && System.currentTimeMillis() - autoTime < 4000) {
-                    drive.updatePoseEstimate();
-                    robot.updateExtend();
-                    robot.updateLiftServo();
-                    robot.updateIntakeBucket();
-                }
-                drive.setDrivePower(new Pose2d(0,0,0));
-
-                robot.setIntakeBucketState(Robot.IntakeBucket.UP);
-                robot.intakebucketClock = System.currentTimeMillis();
-
-                while(System.currentTimeMillis() - robot.intakebucketClock < 1500) {
-                    //for(int i = 0;i < 2000; i ++) {
-                    robot.updateIntakeBucket();
-                    //}
-                }
-
-                robot.extendState = Robot.ExtendState.EXTEND;
-
-                //drive to hub
-                drive.setDrivePower(new Pose2d(0.5 * side,0,0));
-                while (opModeIsActive() && robot.extendState != Robot.ExtendState.RESET) {
-                    drive.updatePoseEstimate();
-                    robot.updateExtend();
-                    robot.updateLiftServo();
-                    robot.updateIntakeBucket();
-                    if(drive.getPoseEstimate().getX() > -23){
-                        drive.setDrivePower(new Pose2d(0,0,0));
-                    }
-                }
-                drive.setDrivePower(new Pose2d(0,0,0));
-            }
 
             while(opModeIsActive()) {
 
@@ -249,6 +197,7 @@ public class AutoNoRoadrunner extends LinearOpMode {
                     robot.updateExtend();
                     robot.updateLiftServo();
                     robot.stopIntake();
+                    robot.updateIntakeBucket();
                 }
             }
         }

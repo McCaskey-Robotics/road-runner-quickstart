@@ -39,7 +39,7 @@ public class DriverControled extends LinearOpMode {
         waitForStart();
 
         //put encoder servo down
-        robot.encoderservo.setPosition(0);
+        robot.encoderservo.setPosition(0.1);
 
         robot.autoDump = false;
 
@@ -199,7 +199,7 @@ public class DriverControled extends LinearOpMode {
             telemetry.addData("intake sin ", Math.sin(Math.toRadians((robot.intakePivot.getCurrentPosition() / 130.0) * 90.0)));
             telemetry.addData("intake deg ", (robot.intakePivot.getCurrentPosition() / 130.0) * 90.0);
 
-            //telemetry.addData("alpha ", robot.getColor(0,1));
+            telemetry.addData("guide ", g);
             //telemetry.addData("red ", robot.getColor(1,1));
             //telemetry.addData("green ", robot.getColor(2,1));
             //telemetry.addData("blue ", robot.getColor(3,1));

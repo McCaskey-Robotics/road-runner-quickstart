@@ -48,8 +48,6 @@ public class Robot {
 
     public static double liftIncrement = 0.025;
 
-    int level = 3;
-
     //if we should wait after we have extended
     public boolean autoDump = false;
     public boolean autoExtend = true;
@@ -148,14 +146,15 @@ public class Robot {
     }
 
     public void setIntakeBucketState(IntakeBucket intakeBucketState) {
-        if(this.intakeBucketState != intakeBucketState) {
+        this.intakeBucketState = intakeBucketState;
+        /*if(this.intakeBucketState != intakeBucketState) {
 
             intakeBucketlastState = this.intakeBucketState;
 
             this.intakeBucketState = intakeBucketState;
 
             intakebucketClock = System.currentTimeMillis();
-        }
+        }*/
     }
 
     public void updateIntakeBucket(){
@@ -170,12 +169,12 @@ public class Robot {
                 p += 0.1;
             }
         }
-        else if(intakeBucketState == IntakeBucket.RIGHT){
+        else if(intakeBucketState == IntakeBucket.LEFT){
             if(intakePivot.getCurrentPosition() < 125){
                 p -= 0.35;
             }
         }
-        else if(intakeBucketState == IntakeBucket.LEFT) {
+        else if(intakeBucketState == IntakeBucket.RIGHT) {
             if(intakePivot.getCurrentPosition() > -125){
                 p += 0.35;
             }
@@ -194,7 +193,7 @@ public class Robot {
             case MANUAL:{
                 l -= gamepad2.left_stick_y / 100;
                 l = Math.min(0.8,l);
-                l = Math.max(0.155,l);
+                l = Math.max(0.135,l);
                 setLiftPosition(l);
 
                 levelBucket();
@@ -225,12 +224,12 @@ public class Robot {
                     extend.setPower(1);
                 }
 
-                if(level > 0) {
-                    if (extend.getCurrentPosition() < 1700) {
-                        levelBucket();
-                        setLiftPosition(0.155);
-                    }
+                //if(level > 0) {
+                if (extend.getCurrentPosition() < 1000) {
+                    levelBucket();
+                    setLiftPosition(0.135);
                 }
+                /*}
                 else{
                     if (extend.getCurrentPosition() < 100) {
                         if(System.currentTimeMillis() - extendClock2 > 1500) {
@@ -239,14 +238,14 @@ public class Robot {
                         }
 
                         if(System.currentTimeMillis() - extendClock2 > 500)
-                            setLiftPosition(0.155);
+                            setLiftPosition(0.135);
                     }
-                }
+                }*/
 
                 if(!extend.isBusy()){
                     extend.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                     extend.setPower(0);
-                    if(lift1.getPosition() <= 0.155)
+                    if(lift1.getPosition() <= 0.135)
                         extendState = ExtendState.WAITTOEXTEND;
                 }
 
@@ -258,7 +257,7 @@ public class Robot {
                 break;
             }
             //extend + lift bucket
-            case EXTEND:{
+            case EXTEND: {
 
                 levelBucket();
                 l = liftPosition;
@@ -298,17 +297,17 @@ public class Robot {
                     setLiftPosition(0.65);
                 }*/
 
-                if(autoExtend)
+                if (autoExtend){
                     extend.setTargetPosition(extendTarget);
-                setLiftPosition(liftTarget);
-
-                if(level != 0) {
                     extend.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     extend.setPower(1);
-
-                    extendClock = System.currentTimeMillis();
-                    extendState = ExtendState.WAITTODUMP;
                 }
+                setLiftPosition(liftTarget);
+
+                //if(level != 0) {
+                extendClock = System.currentTimeMillis();
+                extendState = ExtendState.WAITTODUMP;
+                //}
 
                 break;
             }
@@ -389,11 +388,11 @@ public class Robot {
     }
 
     public void setTarget(String s){
-        if(s.equals("low")) setTarget(1200,0.3);
-        if(s.equals("mid")) setTarget(1100,0.45);
-        if(s.equals("high")) setTarget(1700,0.65);
+        if(s.equals("low")){setTarget(1650,0.3);};
+        if(s.equals("mid")){setTarget(1200,0.5);};
+        if(s.equals("high")){setTarget(1700,0.65);};
 
-        if(s.equals("shared")) setTarget(0,0.4);
+        if(s.equals("shared")){setTarget(0,0.4);}
 
         //grab cap
         if(s.equals("cap")) setTarget(1600,0.35);
@@ -405,7 +404,12 @@ public class Robot {
     }
 
     public void setLevel(int level) {
-        this.level = level;
+        if(level == 1)
+            setTarget("low");
+        if(level == 2)
+            setTarget("mid");
+        if(level == 3)
+            setTarget("high");
     }
 
     public void setIntakeSpeed(double speed){
@@ -428,10 +432,10 @@ public class Robot {
     public void updateLiftServo(){
         if(Math.abs(lift1.getPosition() - liftPosition) > 0.03) {
             if (lift1.getPosition() > liftPosition) {
-                lift1.setPosition(lift1.getPosition() - 0.02);
+                lift1.setPosition(lift1.getPosition() - 0.03);
                 lift2.setPosition(1 - lift1.getPosition());
             } else if (lift1.getPosition() < liftPosition) {
-                lift1.setPosition(lift1.getPosition() + 0.014);
+                lift1.setPosition(lift1.getPosition() + 0.024);
                 lift2.setPosition(1 - lift1.getPosition());
             }
         }
@@ -454,8 +458,8 @@ public class Robot {
     // get the color sensor values
     double getColor(int s) {
         if(s == 1) {
-            return sensorDistance1.getDistance(DistanceUnit.INCH);
+            return sensorDistance2.getDistance(DistanceUnit.INCH);
         }
-        return sensorDistance2.getDistance(DistanceUnit.INCH);
+        return sensorDistance1.getDistance(DistanceUnit.INCH);
     }
 }
