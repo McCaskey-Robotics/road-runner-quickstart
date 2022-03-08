@@ -45,6 +45,7 @@ public class Robot {
     public static double bucketOffset2 = 0.025;
 
     public static double intakePivotPower = -0.4;
+    public static double liftOffset = 0.001;
 
     public static double liftIncrement = 0.025;
 
@@ -128,6 +129,8 @@ public class Robot {
         intakePivot.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         bucket.setPwmRange(new PwmControl.PwmRange(500, 2500));
+        lift1.setDirection(Servo.Direction.REVERSE);
+        lift2.setDirection(Servo.Direction.REVERSE);
 
         extend.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
@@ -163,10 +166,10 @@ public class Robot {
         p = Math.sin(Math.toRadians((intakePivot.getCurrentPosition() / 130.0) * 90.0)) * Robot.intakePivotPower;
         if(intakeBucketState == IntakeBucket.UP){
             if(intakePivot.getCurrentPosition() > 10){
-                p -= 0.1;
+                p -= 0.25;
             }
             if(intakePivot.getCurrentPosition() < -10){
-                p += 0.1;
+                p += 0.25;
             }
         }
         else if(intakeBucketState == IntakeBucket.LEFT){
@@ -193,7 +196,7 @@ public class Robot {
             case MANUAL:{
                 l -= gamepad2.left_stick_y / 100;
                 l = Math.min(0.8,l);
-                l = Math.max(0.135,l);
+                l = Math.max(0.17,l);
                 setLiftPosition(l);
 
                 levelBucket();
@@ -225,9 +228,9 @@ public class Robot {
                 }
 
                 //if(level > 0) {
-                if (extend.getCurrentPosition() < 1000) {
+                if (extend.getCurrentPosition() < 500) {
                     levelBucket();
-                    setLiftPosition(0.135);
+                    setLiftPosition(0.17);
                 }
                 /*}
                 else{
@@ -245,7 +248,7 @@ public class Robot {
                 if(!extend.isBusy()){
                     extend.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                     extend.setPower(0);
-                    if(lift1.getPosition() <= 0.135)
+                    if(lift1.getPosition() <= 0.17 )
                         extendState = ExtendState.WAITTOEXTEND;
                 }
 
@@ -389,13 +392,13 @@ public class Robot {
 
     public void setTarget(String s){
         if(s.equals("low")){setTarget(1650,0.3);};
-        if(s.equals("mid")){setTarget(1200,0.5);};
+        if(s.equals("mid")){setTarget(1300,0.5);};
         if(s.equals("high")){setTarget(1700,0.65);};
 
         if(s.equals("shared")){setTarget(0,0.4);}
 
         //grab cap
-        if(s.equals("cap")) setTarget(1600,0.35);
+        if(s.equals("cap")) setTarget(1500,0.35);
     }
 
     public void setTarget(int extendTarget, double liftTarget){
@@ -433,16 +436,16 @@ public class Robot {
         if(Math.abs(lift1.getPosition() - liftPosition) > 0.03) {
             if (lift1.getPosition() > liftPosition) {
                 lift1.setPosition(lift1.getPosition() - 0.03);
-                lift2.setPosition(1 - lift1.getPosition());
+                lift2.setPosition(1 - (lift1.getPosition() + liftOffset));
             } else if (lift1.getPosition() < liftPosition) {
                 lift1.setPosition(lift1.getPosition() + 0.024);
-                lift2.setPosition(1 - lift1.getPosition());
+                lift2.setPosition(1 - (lift1.getPosition() + liftOffset));
             }
         }
         else{
 
         lift1.setPosition(liftPosition);
-        lift2.setPosition(1 - liftPosition);
+        lift2.setPosition(1 - (liftPosition + liftOffset));
 
         }
     }

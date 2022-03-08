@@ -158,8 +158,7 @@ public class AutoNoRoadrunner extends LinearOpMode {
                 //turn off intake and raise intake bucket
                 robot.setIntakeSpeed(-1);
                 sleep(100);
-                robot.stopIntake();
-                robot.setIntakeBucketState(Robot.IntakeBucket.UP);
+                robot.setIntakeSpeed(0.2);
 
                 telemetry.addData("Time: ", System.currentTimeMillis() - autoTime);
                 telemetry.update();
@@ -174,6 +173,10 @@ public class AutoNoRoadrunner extends LinearOpMode {
 
                 }
 
+                if(robot.extendState == Robot.ExtendState.WAITTOEXTEND) {
+                    robot.setIntakeBucketState(Robot.IntakeBucket.UP);
+                }
+
                 //drive to hub
                 drive.setDrivePower(new Pose2d(-0.75 * side,0,0));
                 while (drive.getPoseEstimate().getX() > -10 && opModeIsActive()) {
@@ -181,9 +184,36 @@ public class AutoNoRoadrunner extends LinearOpMode {
                     robot.updateExtend();
                     robot.updateLiftServo();
                     robot.updateIntakeBucket();
-                    robot.stopIntake();
+
+                    if(robot.extendState == Robot.ExtendState.WAITTOEXTEND) {
+                        robot.setIntakeBucketState(Robot.IntakeBucket.UP);
+                    }
                 }
                 drive.setDrivePower(new Pose2d(0,0,0));
+
+                while(robot.extendState != Robot.ExtendState.WAITTOEXTEND && opModeIsActive()){
+                    drive.updatePoseEstimate();
+                    robot.updateExtend();
+                    robot.updateLiftServo();
+                    robot.updateIntakeBucket();
+                }
+
+
+                robot.setIntakeBucketState(Robot.IntakeBucket.UP);
+                //total = 130
+
+                //wait for intake bucket to come up
+                while(Math.abs(robot.intakePivot.getCurrentPosition()) > 20 && opModeIsActive()){
+                    drive.updatePoseEstimate();
+                    robot.updateExtend();
+                    robot.updateLiftServo();
+                    robot.updateIntakeBucket();
+
+                    telemetry.addData("intake Pivot",robot.intakePivot.getCurrentPosition());
+                    telemetry.update();
+                }
+
+                robot.stopIntake();
 
                 //set target to high goal and extend
                 robot.setLevel(3);
