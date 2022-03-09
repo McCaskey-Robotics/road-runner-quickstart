@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -33,6 +34,10 @@ public class Robot {
     public ServoImplEx bucket;
 
     public Servo encoderservo;
+
+    public ModernRoboticsI2cRangeSensor rangeSensorLeft;
+    public ModernRoboticsI2cRangeSensor rangeSensorRight;
+    public ModernRoboticsI2cRangeSensor rangeSensorBack;
 
     public double liftPosition = 0.155;
 
@@ -145,6 +150,10 @@ public class Robot {
 
         // get a reference to the distance sensor that shares the same name.
         sensorDistance2 = hardwareMap.get(DistanceSensor .class, "color2");
+
+        rangeSensorLeft = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "sensor_range_left");
+        rangeSensorRight = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "sensor_range_right");
+        rangeSensorBack = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "sensor_range_back");
 
     }
 
@@ -464,5 +473,15 @@ public class Robot {
             return sensorDistance2.getDistance(DistanceUnit.INCH);
         }
         return sensorDistance1.getDistance(DistanceUnit.INCH);
+    }
+
+    double getDistanceLeft(){
+        return rangeSensorLeft.getDistance(DistanceUnit.INCH);
+    }
+    double getDistanceRight(){
+        return rangeSensorRight.getDistance(DistanceUnit.INCH);
+    }
+    double getDistanceBack(){
+        return rangeSensorBack.getDistance(DistanceUnit.INCH);
     }
 }
