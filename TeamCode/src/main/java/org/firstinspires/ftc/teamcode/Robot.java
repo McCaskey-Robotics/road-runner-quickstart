@@ -49,6 +49,10 @@ public class Robot {
     public static double bucketOffset1 = 0.1;
     public static double bucketOffset2 = 0.025;
 
+    public double lastRight = 0;
+    public double lastLeft = 0;
+    public double lastBack = 0;
+
     public static double intakePivotPower = -0.4;
     public static double liftOffset = 0.001;
 
@@ -151,9 +155,9 @@ public class Robot {
         // get a reference to the distance sensor that shares the same name.
         sensorDistance2 = hardwareMap.get(DistanceSensor .class, "color2");
 
-        rangeSensorLeft = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "sensor_range_left");
-        rangeSensorRight = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "sensor_range_right");
-        rangeSensorBack = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "sensor_range_back");
+        rangeSensorLeft = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "leftDistance");
+        rangeSensorRight = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "rightDistance");
+        rangeSensorBack = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "rearDistance");
 
     }
 
@@ -175,10 +179,10 @@ public class Robot {
         p = Math.sin(Math.toRadians((intakePivot.getCurrentPosition() / 130.0) * 90.0)) * Robot.intakePivotPower;
         if(intakeBucketState == IntakeBucket.UP){
             if(intakePivot.getCurrentPosition() > 10){
-                p -= 0.25;
+                p -= 0.1;
             }
             if(intakePivot.getCurrentPosition() < -10){
-                p += 0.25;
+                p += 0.1;
             }
         }
         else if(intakeBucketState == IntakeBucket.LEFT){
@@ -204,8 +208,8 @@ public class Robot {
             //manual
             case MANUAL:{
                 l -= gamepad2.left_stick_y / 100;
-                l = Math.min(0.8,l);
-                l = Math.max(0.17,l);
+                l = Math.min(0.8, l);
+                l = Math.max(0.17, l);
                 setLiftPosition(l);
 
                 levelBucket();
@@ -444,10 +448,10 @@ public class Robot {
     public void updateLiftServo(){
         if(Math.abs(lift1.getPosition() - liftPosition) > 0.03) {
             if (lift1.getPosition() > liftPosition) {
-                lift1.setPosition(lift1.getPosition() - 0.03);
+                lift1.setPosition(lift1.getPosition() - 0.06);
                 lift2.setPosition(1 - (lift1.getPosition() + liftOffset));
             } else if (lift1.getPosition() < liftPosition) {
-                lift1.setPosition(lift1.getPosition() + 0.024);
+                lift1.setPosition(lift1.getPosition() + 0.05);
                 lift2.setPosition(1 - (lift1.getPosition() + liftOffset));
             }
         }
@@ -476,12 +480,33 @@ public class Robot {
     }
 
     double getDistanceLeft(){
-        return rangeSensorLeft.getDistance(DistanceUnit.INCH);
+        double d = rangeSensorLeft.getDistance(DistanceUnit.INCH);
+        if(Double.isNaN(d)){
+            return lastLeft;
+        }
+        else {
+            lastLeft = d;
+            return d;
+        }
     }
     double getDistanceRight(){
-        return rangeSensorRight.getDistance(DistanceUnit.INCH);
+        double d = rangeSensorRight.getDistance(DistanceUnit.INCH);
+        if(Double.isNaN(d)){
+            return lastRight;
+        }
+        else {
+            lastRight = d;
+            return d;
+        }
     }
     double getDistanceBack(){
-        return rangeSensorBack.getDistance(DistanceUnit.INCH);
+        double d = rangeSensorBack.getDistance(DistanceUnit.INCH);
+        if(Double.isNaN(d)){
+            return lastBack;
+        }
+        else {
+            lastBack = d;
+            return d;
+        }
     }
 }

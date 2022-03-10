@@ -204,9 +204,9 @@ public class DriverControled extends LinearOpMode {
             //telemetry.addData("green ", robot.getColor(2,1));
             //telemetry.addData("blue ", robot.getColor(3,1));
 
-            //telemetry.addData("distance ", robot.getColor(-1,2));
-            //telemetry.addData("alpha ", robot.getColor(0,2));
-            //telemetry.addData("red ", robot.getColor(1,2));
+            telemetry.addData("distance back", robot.getDistanceBack());
+            telemetry.addData("distance right ", robot.getDistanceRight());
+            telemetry.addData("distance left ", robot.getDistanceLeft());
             //telemetry.addData("green ", robot.getColor(2,2));
             //telemetry.addData("blue ", robot.getColor(3,2));
 

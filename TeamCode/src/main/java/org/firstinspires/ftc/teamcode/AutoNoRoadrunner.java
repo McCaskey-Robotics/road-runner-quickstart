@@ -4,6 +4,7 @@ import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
@@ -173,8 +174,11 @@ public class AutoNoRoadrunner extends LinearOpMode {
 
                 }
 
+                ElapsedTime runtime = new ElapsedTime();
+
                 if(robot.extendState == Robot.ExtendState.WAITTOEXTEND) {
                     robot.setIntakeBucketState(Robot.IntakeBucket.UP);
+                    runtime.reset();
                 }
 
                 //drive to hub
@@ -188,6 +192,9 @@ public class AutoNoRoadrunner extends LinearOpMode {
                     if(robot.extendState == Robot.ExtendState.WAITTOEXTEND) {
                         robot.setIntakeBucketState(Robot.IntakeBucket.UP);
                     }
+
+                    telemetry.addData("Drive to hub","");
+                    telemetry.update();
                 }
                 drive.setDrivePower(new Pose2d(0,0,0));
 
@@ -196,6 +203,10 @@ public class AutoNoRoadrunner extends LinearOpMode {
                     robot.updateExtend();
                     robot.updateLiftServo();
                     robot.updateIntakeBucket();
+                    telemetry.addData("Wait for extend to come in","");
+                    telemetry.update();
+
+                    runtime.reset();
                 }
 
 
@@ -211,6 +222,12 @@ public class AutoNoRoadrunner extends LinearOpMode {
 
                     telemetry.addData("intake Pivot",robot.intakePivot.getCurrentPosition());
                     telemetry.update();
+
+                    runtime.reset();
+                }
+
+                while (opModeIsActive() && (runtime.seconds() < 2)) {
+                    robot.updateLiftServo();
                 }
 
                 robot.stopIntake();
