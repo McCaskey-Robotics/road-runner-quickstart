@@ -259,7 +259,7 @@ public class Robot {
                 }*/
 
                 if(!extend.isBusy()){
-                    extend.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                    //extend.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                     extend.setPower(0);
                     if(lift1.getPosition() <= 0.17 )
                         extendState = ExtendState.WAITTOEXTEND;
@@ -337,6 +337,7 @@ public class Robot {
                 }
                 else if(!extend.isBusy()){
                     extendState = ExtendState.MANUAL;
+                    l = lift1.getPosition();
                 }
                 break;
             }
@@ -368,9 +369,18 @@ public class Robot {
             }
             case WAIT:{
                 //wait 1/2 second to give the bucket time to dump then reset
-                if(System.currentTimeMillis() - extendClock > 750) {
-                    extendClock = System.currentTimeMillis();
-                    extendState = ExtendState.RESET;
+                if(autoDump){
+                    if(System.currentTimeMillis() - extendClock > 750) {
+                        extendClock = System.currentTimeMillis();
+                        extendState = ExtendState.RESET;
+                    }
+                }
+                else{
+                    if(System.currentTimeMillis() - extendClock > 750) {
+                        levelBucket();
+                        extendState = ExtendState.MANUAL;
+                        l = lift1.getPosition();
+                    }
                 }
             }
         }
@@ -405,7 +415,7 @@ public class Robot {
 
     public void setTarget(String s){
         if(s.equals("low")){setTarget(1650,0.3);};
-        if(s.equals("mid")){setTarget(1300,0.5);};
+        if(s.equals("mid")){setTarget(1300,0.45);};
         if(s.equals("high")){setTarget(1700,0.65);};
 
         if(s.equals("shared")){setTarget(0,0.4);}
@@ -448,7 +458,7 @@ public class Robot {
     public void updateLiftServo(){
         if(Math.abs(lift1.getPosition() - liftPosition) > 0.03) {
             if (lift1.getPosition() > liftPosition) {
-                lift1.setPosition(lift1.getPosition() - 0.06);
+                lift1.setPosition(lift1.getPosition() - 0.04);
                 lift2.setPosition(1 - (lift1.getPosition() + liftOffset));
             } else if (lift1.getPosition() < liftPosition) {
                 lift1.setPosition(lift1.getPosition() + 0.05);

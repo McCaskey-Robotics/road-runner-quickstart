@@ -70,7 +70,7 @@ public class AutoNoRoadrunner extends LinearOpMode {
             }
         });
 
-        robot.encoderservo.setPosition(0.25);
+        robot.encoderservo.setPosition(0.27);
 
         telemetry.setDisplayFormat(Telemetry.DisplayFormat.HTML);
 
@@ -123,13 +123,34 @@ public class AutoNoRoadrunner extends LinearOpMode {
 
             //drive to hub
             drive.setDrivePower(new Pose2d(-0.5 * side,0,0));
-            while (opModeIsActive() && robot.extendState != Robot.ExtendState.RESET) {
-                drive.updatePoseEstimate();
-                robot.updateExtend();
-                robot.updateLiftServo();
-                robot.updateIntakeBucket();
-                if(drive.getPoseEstimate().getX() < -20){
-                    drive.setDrivePower(new Pose2d(0,0,0));
+            if (side == 1)
+            {
+                while (opModeIsActive() && robot.extendState != Robot.ExtendState.RESET) {
+                    drive.updatePoseEstimate();
+                    robot.updateExtend();
+                    robot.updateLiftServo();
+                    robot.updateIntakeBucket();
+                    if(drive.getPoseEstimate().getX() < -20){
+                        drive.setDrivePower(new Pose2d(0,0,0));
+                    }
+
+                    telemetry.addData("Odo:", drive.getPoseEstimate());
+                    telemetry.update();
+                }
+            }
+            else
+            {
+                while (opModeIsActive() && robot.extendState != Robot.ExtendState.RESET) {
+                    drive.updatePoseEstimate();
+                    robot.updateExtend();
+                    robot.updateLiftServo();
+                    robot.updateIntakeBucket();
+                    if(drive.getPoseEstimate().getX() < -10){
+                        drive.setDrivePower(new Pose2d(0,0,0));
+                    }
+
+                    telemetry.addData("Odo:", drive.getPoseEstimate());
+                    telemetry.update();
                 }
             }
             drive.setDrivePower(new Pose2d(0,0,0));
@@ -140,7 +161,7 @@ public class AutoNoRoadrunner extends LinearOpMode {
 
                 robot.setIntakeBucketState(side == 1 ? Robot.IntakeBucket.RIGHT /*red*/ : Robot.IntakeBucket.LEFT /*blue*/);
 
-                robot.setIntakeSpeed(1);
+                robot.setIntakeSpeed(side);
 
                 //drive into warehouse
                 drive.setDrivePower(new Pose2d(0.75 * side,0,0));
@@ -159,7 +180,7 @@ public class AutoNoRoadrunner extends LinearOpMode {
                 //turn off intake and raise intake bucket
                 robot.setIntakeSpeed(-1);
                 sleep(100);
-                robot.setIntakeSpeed(0.2);
+                robot.setIntakeSpeed(-0.2);
 
                 telemetry.addData("Time: ", System.currentTimeMillis() - autoTime);
                 telemetry.update();
@@ -176,39 +197,70 @@ public class AutoNoRoadrunner extends LinearOpMode {
 
                 ElapsedTime runtime = new ElapsedTime();
 
+                //0 not triggered
+                //1 right after we senced somthing
+                //2 on drive to hub
+                //3 while waiting by hub
+                int intakePivotCode = 0;
+
                 if(robot.extendState == Robot.ExtendState.WAITTOEXTEND) {
                     robot.setIntakeBucketState(Robot.IntakeBucket.UP);
                     runtime.reset();
+                    intakePivotCode = 1;
                 }
 
                 //drive to hub
                 drive.setDrivePower(new Pose2d(-0.75 * side,0,0));
-                while (drive.getPoseEstimate().getX() > -10 && opModeIsActive()) {
-                    drive.updatePoseEstimate();
-                    robot.updateExtend();
-                    robot.updateLiftServo();
-                    robot.updateIntakeBucket();
+                if(side == 1) {
+                    while (drive.getPoseEstimate().getX() > -25 && opModeIsActive()) {
+                        drive.updatePoseEstimate();
+                        robot.updateExtend();
+                        robot.updateLiftServo();
+                        robot.updateIntakeBucket();
 
-                    if(robot.extendState == Robot.ExtendState.WAITTOEXTEND) {
-                        robot.setIntakeBucketState(Robot.IntakeBucket.UP);
+                        if (robot.extendState == Robot.ExtendState.WAITTOEXTEND && intakePivotCode == 0) {
+                            robot.setIntakeBucketState(Robot.IntakeBucket.UP);
+                            runtime.reset();
+                            intakePivotCode = 2;
+                        }
+
+                        telemetry.addData("Drive to hub", "");
+                        telemetry.update();
                     }
+                }
+                else{
+                    while (drive.getPoseEstimate().getX() > -25 && opModeIsActive()) {
+                        drive.updatePoseEstimate();
+                        robot.updateExtend();
+                        robot.updateLiftServo();
+                        robot.updateIntakeBucket();
 
-                    telemetry.addData("Drive to hub","");
-                    telemetry.update();
+                        if (robot.extendState == Robot.ExtendState.WAITTOEXTEND && intakePivotCode == 0) {
+                            robot.setIntakeBucketState(Robot.IntakeBucket.UP);
+                            runtime.reset();
+                            intakePivotCode = 2;
+                        }
+
+                        telemetry.addData("Drive to hub", "");
+                        telemetry.update();
+                    }
                 }
                 drive.setDrivePower(new Pose2d(0,0,0));
 
-                while(robot.extendState != Robot.ExtendState.WAITTOEXTEND && opModeIsActive()){
+                ElapsedTime time = new ElapsedTime();
+                time.reset();
+
+                while(robot.extendState != Robot.ExtendState.WAITTOEXTEND && time.seconds() < 1 && opModeIsActive()){
                     drive.updatePoseEstimate();
                     robot.updateExtend();
                     robot.updateLiftServo();
                     robot.updateIntakeBucket();
-                    telemetry.addData("Wait for extend to come in","");
+                    telemetry.addData("Wait for extend to come in", robot.extendState);
                     telemetry.update();
 
                     runtime.reset();
+                    intakePivotCode = 3;
                 }
-
 
                 robot.setIntakeBucketState(Robot.IntakeBucket.UP);
                 //total = 130
@@ -226,8 +278,13 @@ public class AutoNoRoadrunner extends LinearOpMode {
                     runtime.reset();
                 }
 
-                while (opModeIsActive() && (runtime.seconds() < 2)) {
-                    robot.updateLiftServo();
+                if(intakePivotCode >= 2) {
+                    while (opModeIsActive() && (runtime.seconds() < 2.0)) {
+                        drive.updatePoseEstimate();
+                        robot.updateExtend();
+                        robot.updateLiftServo();
+                        robot.updateIntakeBucket();
+                    }
                 }
 
                 robot.stopIntake();
